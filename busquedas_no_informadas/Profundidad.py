@@ -76,7 +76,7 @@ def dfs_izquierda_derecha():
             # Lista temporal para almacenar los hijos antes de invertirlos
             hijos_temp = []
 
-            # Explorar las 4 direcciones en el orden: derecha, abajo, izquierda, arriba
+            # Explorar las 4 direcciones en el orden: arriba, derecha, abajo, izquierda
             for movimiento in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
                 nueva_fila = padre.fila + movimiento[0]
                 nueva_colum = padre.colum + movimiento[1]
