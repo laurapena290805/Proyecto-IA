@@ -39,6 +39,10 @@ def busqueda_profundidad_iterativa(inicio, objetivo, profundidad_maxima):
         visitados = set()
         resultado = dfs_limitado(inicio, objetivo, profundidad, visitados, iteraciones + 1)
 
+        # Dibujar árbol para esta iteración y profundidad
+        print(f"\nÁrbol tras iteración {iteraciones + 1} (Profundidad límite {profundidad}):")
+        dibujar_arbol(inicio, visitados, profundidad)
+
         if resultado:
             print(f"\nSe encontró el camino en {iteraciones} iteraciones")
             return resultado
@@ -48,14 +52,17 @@ def busqueda_profundidad_iterativa(inicio, objetivo, profundidad_maxima):
     print(f"\nSe realizaron {iteraciones} iteraciones en total")
     return "No se encontró un camino"
 
-def dibujar_arbol(nodo, nivel=0, prefijo=""):
-    """Dibuja el árbol de conexiones."""
+def dibujar_arbol(nodo, visitados, profundidad_limite, nivel=0, prefijo=""):
+    """Dibuja el árbol de conexiones basado en la búsqueda."""
+    if nivel > profundidad_limite:
+        return  # No dibujar más allá del límite o si no fue visitado
+
     print(f"{' ' * (nivel * 4)}{prefijo}({nodo.nombre})")
 
     for i, vecino in enumerate(nodo.vecinos):
         ultimo = i == len(nodo.vecinos) - 1
         prefijo_vecino = "└── " if ultimo else "├── "
-        dibujar_arbol(vecino, nivel + 1, prefijo_vecino)
+        dibujar_arbol(vecino, visitados, profundidad_limite, nivel + 1, prefijo_vecino)
 
 if __name__ == "__main__":
     # Crear nodos
@@ -71,15 +78,11 @@ if __name__ == "__main__":
     b.agregar_vecino(d)
     c.agregar_vecino(d)
 
-    # Dibujar el árbol de conexiones
-    print("Árbol de conexiones:")
-    dibujar_arbol(a)
-
-    # Realizar la búsqueda
-    profundidad_maxima = 3
-    camino = busqueda_profundidad_iterativa(a, d, profundidad_maxima)
+    iteraciones = 0
+    camino = busqueda_profundidad_iterativa(a, d, iteraciones)
 
     if camino != "No se encontró un camino":
         print(f"\nCamino encontrado: {[n.nombre for n in camino]}")
     else:
         print(camino)
+
