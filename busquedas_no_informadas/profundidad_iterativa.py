@@ -10,7 +10,6 @@ class Nodo:
         return self.nombre
 
 def dfs_limitado(nodo, objetivo, profundidad_limite, visitados, iteracion):
-    print(f"Iteración {iteracion}: Visitando {nodo.nombre}, Profundidad restante: {profundidad_limite}")
 
     if nodo == objetivo:
         return [nodo]  # Camino encontrado
@@ -49,7 +48,7 @@ def busqueda_profundidad_iterativa(inicio, objetivo):
         profundidad += 1  # Aumentar la profundidad límite en cada iteración
 
         # Condición para evitar un bucle infinito en caso de no encontrar camino
-        if iteraciones > 50:  
+        if iteraciones > 5:  
             print("\nSe alcanzó el límite de iteraciones.")
             return "No se encontró un camino"
 
