@@ -1,45 +1,80 @@
 class Nodo:
-    def __init__(self, nombre):
-        self.nombre = nombre
-        self.vecinos = {}  # Diccionario de vecinos
-
-    def agregar_vecino(self, vecino):
-        self.vecinos[vecino] = 1  # Simplificamos con costo 1
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.vecinos = []  # Almacena los vecinos explorados en esta iteración
 
     def __repr__(self):
-        return self.nombre
+        return f"({self.x}, {self.y})"
 
-def dfs_limitado(nodo, objetivo, profundidad_limite, visitados, iteracion):
+    def reiniciar_vecinos(self):
+        """Reinicia la lista de vecinos para la próxima iteración."""
+        self.vecinos = []  # Limpiar vecinos antes de la siguiente iteración
 
-    if nodo == objetivo:
+def obtener_vecinos(nodo, nodos_bloqueados, tamaño=4):
+    # Devuelve los vecinos válidos dentro de los límites de la matriz y que no estén bloqueados
+    movimientos = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # Derecha, arriba, abajo, izquierda
+    vecinos = []
+
+    for dx, dy in movimientos:
+        nuevo_x, nuevo_y = nodo.x + dx, nodo.y + dy
+        # Verificar límites de la matriz y si el nodo está bloqueado
+        if 0 <= nuevo_x < tamaño and 0 <= nuevo_y < tamaño and (nuevo_x, nuevo_y) not in nodos_bloqueados:
+            vecino = Nodo(nuevo_x, nuevo_y)
+            vecinos.append(vecino)
+
+    return vecinos
+
+def dfs_limitado(nodo, objetivo, profundidad_limite, visitados, arbol_explorado, nodos_bloqueados):
+    # Realiza búsqueda en profundidad limitada
+    if nodo.x == objetivo.x and nodo.y == objetivo.y:
         return [nodo]  # Camino encontrado
 
     if profundidad_limite <= 0:
         return None  # Límite alcanzado
 
-    visitados.add(nodo)
+    visitados.add((nodo.x, nodo.y))
 
-    for vecino in nodo.vecinos:
-        if vecino not in visitados:
-            resultado = dfs_limitado(vecino, objetivo, profundidad_limite - 1, visitados, iteracion + 1)
+    # Obtener vecinos y agregar al árbol de exploración de esta iteración
+    for vecino in obtener_vecinos(nodo, nodos_bloqueados):
+        if (vecino.x, vecino.y) not in visitados:
+            nodo.vecinos.append(vecino)  # Guardamos solo para esta iteración
+            arbol_explorado.append(vecino)  # Mantener el árbol separado por iteración
+            resultado = dfs_limitado(vecino, objetivo, profundidad_limite - 1, visitados, arbol_explorado, nodos_bloqueados)
             if resultado:
                 return [nodo] + resultado
 
-    visitados.remove(nodo)  # Backtracking
+    visitados.remove((nodo.x, nodo.y))  # Backtracking
     return None
 
-def busqueda_profundidad_iterativa(inicio, objetivo):
-    iteraciones = 0  # Contador de iteraciones
-    profundidad = 0  # Comenzar con profundidad 0
+def dibujar_arbol_dfs(nodo, nivel=0, prefijo=""):
+    # Dibuja el árbol de conexiones basado en la búsqueda DFS
+    print(f"{' ' * (nivel * 4)}{prefijo}({nodo.x}, {nodo.y})")
+
+    for i, vecino in enumerate(nodo.vecinos):
+        ultimo = i == len(nodo.vecinos) - 1
+        prefijo_vecino = "└── " if ultimo else "├── "
+        dibujar_arbol_dfs(vecino, nivel + 1, prefijo_vecino)
+
+def busqueda_profundidad_iterativa(inicio, objetivo, nodos_bloqueados):
+    # Búsqueda por profundidad iterativa sin límite fijo
+    iteraciones = 0
+    profundidad = 0
 
     while True:
         print(f"\n=== Explorando con profundidad límite: {profundidad} ===")
         visitados = set()
-        resultado = dfs_limitado(inicio, objetivo, profundidad, visitados, iteraciones + 1)
+        arbol_explorado = [inicio]  # Inicializamos con el nodo de inicio
 
-        # Dibujar árbol para esta iteración y profundidad
+        # Reiniciar vecinos de todos los nodos antes de cada nueva iteración
+        reiniciar_vecinos_recursivo(inicio)
+
+        # Ejecutar DFS limitado para esta iteración
+        resultado = dfs_limitado(inicio, objetivo, profundidad, visitados, arbol_explorado, nodos_bloqueados)
+
+        # Dibujar el árbol de esta iteración
         print(f"\nÁrbol tras iteración {iteraciones + 1} (Profundidad límite {profundidad}):")
-        dibujar_arbol(inicio, visitados, profundidad)
+        dibujar_arbol_dfs(inicio)
 
         if resultado:
             return resultado
@@ -47,41 +82,32 @@ def busqueda_profundidad_iterativa(inicio, objetivo):
         iteraciones += 1
         profundidad += 1  # Aumentar la profundidad límite en cada iteración
 
-        # Condición para evitar un bucle infinito en caso de no encontrar camino
-        if iteraciones > 5:  
+        if iteraciones >= 10:  # Evitar bucle infinito
             print("\nSe alcanzó el límite de iteraciones.")
             return "No se encontró un camino"
 
-def dibujar_arbol(nodo, visitados, profundidad_limite, nivel=0, prefijo=""):
-    if nivel > profundidad_limite:
-        return  # No dibujar más allá del límite o si no fue visitado
-
-    print(f"{' ' * (nivel * 4)}{prefijo}({nodo.nombre})")
-
-    for i, vecino in enumerate(nodo.vecinos):
-        ultimo = i == len(nodo.vecinos) - 1
-        prefijo_vecino = "└── " if ultimo else "├── "
-        dibujar_arbol(vecino, visitados, profundidad_limite, nivel + 1, prefijo_vecino)
+def reiniciar_vecinos_recursivo(nodo):
+    # Reinicia los nodos vecinos para que no se repitan en el arbol
+    nodo.reiniciar_vecinos()
+    for vecino in nodo.vecinos:
+        reiniciar_vecinos_recursivo(vecino)
 
 if __name__ == "__main__":
-    # Crear nodos
-    a = Nodo('A')
-    b = Nodo('B')
-    c = Nodo('C')
-    d = Nodo('D')
+    # Definir nodo inicial y final
+    inicio = Nodo(0, 2)  # Coordenada (0,2)
+    objetivo = Nodo(3, 1)  # Coordenada (3,1)
 
-    # Agregar conexiones
-    a.agregar_vecino(b)
-    a.agregar_vecino(c)
-    b.agregar_vecino(c)
-    b.agregar_vecino(d)
-    c.agregar_vecino(d)
+    # Definir los nodos bloqueados
+    nodos_bloqueados = [(1, 1), (1, 2), (2, 1), (3, 3)]
 
-    camino = busqueda_profundidad_iterativa(a, d)
+    # Realizar la búsqueda
+    camino = busqueda_profundidad_iterativa(inicio, objetivo, nodos_bloqueados)
 
     if camino != "No se encontró un camino":
-        print(f"\nCamino encontrado: {[n.nombre for n in camino]}")
+        print(f"\nCamino encontrado: {[str(n) for n in camino]}")
     else:
         print(camino)
+
+
 
 
