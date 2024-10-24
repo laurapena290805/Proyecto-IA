@@ -10,7 +10,6 @@ class Nodo:
         return self.nombre
 
 def dfs_limitado(nodo, objetivo, profundidad_limite, visitados, iteracion):
-    """Realiza búsqueda en profundidad limitada."""
     print(f"Iteración {iteracion}: Visitando {nodo.nombre}, Profundidad restante: {profundidad_limite}")
 
     if nodo == objetivo:
@@ -30,11 +29,11 @@ def dfs_limitado(nodo, objetivo, profundidad_limite, visitados, iteracion):
     visitados.remove(nodo)  # Backtracking
     return None
 
-def busqueda_profundidad_iterativa(inicio, objetivo, profundidad_maxima):
-    """Búsqueda por profundidad iterativa."""
+def busqueda_profundidad_iterativa(inicio, objetivo):
     iteraciones = 0  # Contador de iteraciones
+    profundidad = 0  # Comenzar con profundidad 0
 
-    for profundidad in range(profundidad_maxima + 1):
+    while True:
         print(f"\n=== Explorando con profundidad límite: {profundidad} ===")
         visitados = set()
         resultado = dfs_limitado(inicio, objetivo, profundidad, visitados, iteraciones + 1)
@@ -44,16 +43,17 @@ def busqueda_profundidad_iterativa(inicio, objetivo, profundidad_maxima):
         dibujar_arbol(inicio, visitados, profundidad)
 
         if resultado:
-            print(f"\nSe encontró el camino en {iteraciones} iteraciones")
             return resultado
 
         iteraciones += 1
+        profundidad += 1  # Aumentar la profundidad límite en cada iteración
 
-    print(f"\nSe realizaron {iteraciones} iteraciones en total")
-    return "No se encontró un camino"
+        # Condición para evitar un bucle infinito en caso de no encontrar camino
+        if iteraciones > 50:  
+            print("\nSe alcanzó el límite de iteraciones.")
+            return "No se encontró un camino"
 
 def dibujar_arbol(nodo, visitados, profundidad_limite, nivel=0, prefijo=""):
-    """Dibuja el árbol de conexiones basado en la búsqueda."""
     if nivel > profundidad_limite:
         return  # No dibujar más allá del límite o si no fue visitado
 
@@ -78,11 +78,11 @@ if __name__ == "__main__":
     b.agregar_vecino(d)
     c.agregar_vecino(d)
 
-    iteraciones = 0
-    camino = busqueda_profundidad_iterativa(a, d, iteraciones)
+    camino = busqueda_profundidad_iterativa(a, d)
 
     if camino != "No se encontró un camino":
         print(f"\nCamino encontrado: {[n.nombre for n in camino]}")
     else:
         print(camino)
+
 
