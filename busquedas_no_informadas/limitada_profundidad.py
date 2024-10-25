@@ -62,6 +62,8 @@ def dls_limitProfundidad():
     arbol.add_node((padre.fila, padre.colum))  # Agregar nodo inicial al árbol
 
     while pila:
+        ####print(pila)
+        print("\n")
         padre, profundidad = pila.pop()  # Sacar el nodo y su profundidad
         print(f"Visitando nodo: {padre}, Profundidad: {profundidad}")  # Nodo visitado
 
@@ -82,35 +84,64 @@ def dls_limitProfundidad():
             visitado[padre.fila][padre.colum] = True  # Marcamos como visitado
 
             # Explorar las 4 direcciones en el orden: derecha, abajo, izquierda, arriba
-            for movimiento in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+            for movimiento in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                 nueva_fila = padre.fila + movimiento[0]
                 nueva_colum = padre.colum + movimiento[1]
 
                 if es_valido(nueva_fila, nueva_colum) and mapa[nueva_fila][nueva_colum] != '#' and not visitado[nueva_fila][nueva_colum]:
                     hijo = Nodo(nueva_fila, nueva_colum, padre.pasos + 1)
                     pila.append((hijo, profundidad + 1))  # Incrementamos la profundidad
-                    print(f"Agregando nodo: {hijo}, Profundidad: {profundidad + 1}")  # Nodo agregado
+                    print(f"  Agregando nodo: {hijo}, Profundidad: {profundidad + 1}")  # Nodo agregado
                     padres[(hijo.fila, hijo.colum)] = padre  # Registrar el padre completo (un objeto Nodo)
 
                     # Agregar el nodo y la arista al árbol
                     arbol.add_node((hijo.fila, hijo.colum))  # Añadir hijo al árbol
                     arbol.add_edge((padre.fila, padre.colum), (hijo.fila, hijo.colum))  # Conectar con el padre
                     
-                    print(f"Padre: {padre} -> Hijo: {hijo}")  # Mostrar la conexión
+                    #print(f"Padre: {padre} -> Hijo: {hijo}")  # Mostrar la conexión
 
     print("No se puede llegar a la meta o se alcanzó el límite de profundidad")
     dibujar_arbol()  # Dibujar el árbol aunque no se encuentre la meta
 
+import matplotlib.pyplot as plt
+
+def dibujar_arbol_grafo(nodo, x=0, y=0, dx=5, dy=1.2, ax=None, posiciones=None, nivel=0):
+    if ax is None:
+        fig, ax = plt.subplots()
+        ax.set_aspect('equal')
+        ax.axis('off')
+    
+    if posiciones is None:
+        posiciones = {}
+    
+    posiciones[nodo] = (x, y)
+    
+    # Dibujar nodos hijos
+    hijos = list(arbol.successors(nodo))
+    for i, hijo in enumerate(hijos):
+        nuevo_x = x + dx * (i - len(hijos) / 2)  # Ajustar posición horizontal
+        nuevo_y = y - dy  # Nivel inferior para el hijo
+        ax.plot([x, nuevo_x], [y, nuevo_y], 'k-')  # Dibujar la línea entre padre e hijo
+        dibujar_arbol_grafo(hijo, nuevo_x, nuevo_y, dx / 2, dy, ax, posiciones, nivel + 1)
+    
+    # Dibujar el nodo actual
+    ax.text(x, y, str(nodo), ha='center', va='center',
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='circle'))
+
+    if ax is None:
+        plt.figure(figsize=(10, 10))
+        plt.title("Árbol de Búsqueda DFS - Formato de Árbol")
+        plt.show()
+
+
+# Llamada a la función dentro de nuestro algoritmo
 def dibujar_arbol():
-    plt.figure(figsize=(10, 10))
-    pos = nx.spring_layout(arbol, seed=42)  # Layout para organizar los nodos
+    #plt.figure(figsize=(10, 10))
 
-    # Ajustar la posición de los nodos para que el nodo raíz esté arriba
-    for node in pos:
-        pos[node][1] *= -1  # Invertir el eje Y
+    # Llamar a la función recursiva para dibujar el árbol desde el nodo inicial
+    dibujar_arbol_grafo((fila_inicio, columna_inicio))
 
-    nx.draw(arbol, pos, with_labels=True, node_size=500, node_color="lightblue", font_size=10, font_weight="bold", arrows=True)
-    plt.title("Árbol de Búsqueda Limitada por Profundidad")
+    #plt.title("Árbol de Búsqueda DFS - Formato de Árbol")
     plt.show()
 
 
