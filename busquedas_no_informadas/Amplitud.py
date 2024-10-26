@@ -1,4 +1,6 @@
 from collections import deque
+import networkx as nx
+import matplotlib.pyplot as plt
 
 n, m = 0, 0  # Límites del mapa en filas y columnas
 fila_inicio, columna_inicio = 0, 0  # Posición inicial
@@ -6,12 +8,14 @@ fila_final, columna_final = 0, 0  # Posición final
 mapa = []
 visitado = [[False for _ in range(105)] for _ in range(105)]  # Matriz de visitados
 padres = {}  # Diccionario para registrar los padres de cada nodo
+arbol_conexiones = []  # Lista para almacenar las conexiones del árbol
 
 class Nodo:
-    def __init__(self, fila, colum, pasos=0):
+    def __init__(self, fila, colum, pasos=0, padre=None):
         self.fila = fila
         self.colum = colum
         self.pasos = pasos
+        self.padre = padre
 
     def __repr__(self):
         return f"({self.fila}, {self.colum})"
@@ -39,7 +43,7 @@ def reconstruir_camino(nodo):
     camino = []
     while nodo is not None:
         camino.append((nodo.fila, nodo.colum))  # Añadir la posición al camino
-        nodo = padres.get((nodo.fila, nodo.colum), None)  # Pasar al padre
+        nodo = nodo.padre
     camino.reverse()  # Invertir el camino para mostrar desde el inicio hasta la meta
     return camino
 
@@ -48,40 +52,84 @@ def bfs():
 
     cola = deque()
     # Inicializar BFS desde la posición inicial
-    nodo_inicial = Nodo(fila_inicio, columna_inicio)
+    nodo_inicial = Nodo(fila_inicio, columna_inicio, 0, None)
     cola.append(nodo_inicial)
-    padres[(fila_inicio, columna_inicio)] = None  # El nodo inicial no tiene padre
 
     while cola:
-        padre = cola.popleft()  # Sacar el primer nodo de la cola (BFS)
+        nodo_actual = cola.popleft()
+        fila, colum = nodo_actual.fila, nodo_actual.colum
 
-        print(f"Visitando nodo: {padre}")  # Mostrar el nodo que se está visitando
+        if fila == fila_final and colum == columna_final:
+            print("pasos para llegar a la meta:", nodo_actual.pasos)
+            print("costo para llegar a la meta:", nodo_actual.pasos)
+            # Reconstruir el camino desde la meta hasta el inicio
+            camino = reconstruir_camino(nodo_actual)
+            print("Camino encontrado:", camino)
+            return camino
+        
+        for df, dc in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
+            nueva_fila, nueva_colum = fila + df, colum + dc
+            
+            valido = True
+            if nodo_actual.padre is not None:
+                padre = nodo_actual.padre
+                if padre.fila == nueva_fila and padre.colum == nueva_colum:
+                    valido = False
+                
+            if es_valido(nueva_fila, nueva_colum) and valido:
+                cola.append(Nodo(nueva_fila, nueva_colum, nodo_actual.pasos + 1, nodo_actual))
+                arbol_conexiones.append(((fila, colum), (nueva_fila, nueva_colum)))
 
-        # Si es la coordenada final, hemos terminado
-        if padre.fila == fila_final and padre.colum == columna_final:
-            print("Pasos para llegar a la meta:", padre.pasos)  # Cantidad de pasos
-            camino = reconstruir_camino(padre)  # Reconstruir el camino
-            print("Camino:", camino)  # Mostrar el camino
-            return
+    print("No se puede llegar a la meta")        
+    return None
 
-        if visitado[padre.fila][padre.colum]:
-            continue  # Si ya fue visitado, lo omitimos
+# Función para visualizar el árbol jerárquico usando NetworkX
+def visualizar_arbol_jerarquico(arbol_conexiones, camino):
+    G = nx.DiGraph()
+    
+    # Agregar las conexiones del árbol al grafo
+    for nodo1, nodo2 in arbol_conexiones:
+        print(nodo1, nodo2)
+        G.add_edge(nodo1, nodo2)
+    
+    # Usamos un layout jerárquico
+    pos = hierarchy_pos(G, (fila_inicio, columna_inicio))  # Layout especial para árboles
+    
+    # Dibujar el árbol
+    nx.draw(G, pos, with_labels=True, node_size=500, node_color="orange", font_size=10)
+    
+    # Resaltar el camino encontrado
+    edge_path = [(camino[i], camino[i+1]) for i in range(len(camino) - 1)]
+    nx.draw_networkx_edges(G, pos, edgelist=edge_path, edge_color="red", width=2.5)
+    
+    plt.show()
 
-        visitado[padre.fila][padre.colum] = True  # Marcamos como visitado
+# Función para calcular la posición jerárquica del árbol
+def hierarchy_pos(G, root=None, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5):
+    pos = _hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter)
+    return pos
 
-        # Explorar las 4 direcciones (norte, sur, oeste, este)
-        for movimiento in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            nueva_fila = padre.fila + movimiento[0]
-            nueva_colum = padre.colum + movimiento[1]
+def _hierarchy_pos(G, root, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5, pos=None, parent=None, parsed=[]):
+    if pos is None:
+        pos = {root: (xcenter, vert_loc)}
+    else:
+        pos[root] = (xcenter, vert_loc)
+    
+    children = list(G.neighbors(root))
+    if not isinstance(G, nx.DiGraph) and parent is not None:
+        children.remove(parent)
+    
+    if len(children) != 0:
+        dx = width / len(children)
+        nextx = xcenter - width / 2 - dx / 2
+        for child in children:
+            nextx += dx
+            pos = _hierarchy_pos(G, child, width=dx, vert_gap=vert_gap, vert_loc=vert_loc-vert_gap, xcenter=nextx, pos=pos, parent=root, parsed=parsed)
+    
+    return pos
 
-            if es_valido(nueva_fila, nueva_colum):
-                hijo = Nodo(nueva_fila, nueva_colum, padre.pasos + 1)
-                cola.append(hijo)
-                padres[(nueva_fila, nueva_colum)] = padre  # Registrar el nodo padre
-
-                print(f"  Añadiendo nodo a la cola: {hijo}")  # Mostrar nodos que se añaden a la cola
-
-    print("No se puede llegar a la meta")
 
 if __name__ == "__main__":
-    bfs()
+    camino = bfs()  # Ejecutar BFS y obtener el camino
+    if camino:
+        visualizar_arbol_jerarquico(arbol_conexiones, camino)
