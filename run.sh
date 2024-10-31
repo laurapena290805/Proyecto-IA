@@ -1,0 +1,1 @@
+PYTHONPATH=. python3 busquedas_no_informadas/Profundidad.py 
