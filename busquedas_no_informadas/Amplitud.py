@@ -1,6 +1,8 @@
 from collections import deque
 import networkx as nx
 import matplotlib.pyplot as plt
+from Arbol.graficar_arbol import visualizar_arbol_jerarquico
+from clase_nodo.class_nodo import Nodo
 
 
 
@@ -12,16 +14,6 @@ visitado = [[False for _ in range(105)] for _ in range(105)]  # Matriz de visita
 padres = {}  # Diccionario para registrar los padres de cada nodo
 arbol_conexiones = []  # Lista para almacenar las conexiones del árbol
 camino = []
-
-class Nodo:
-    def __init__(self, fila, colum, pasos=0, padre=None):
-        self.fila = fila
-        self.colum = colum
-        self.pasos = pasos
-        self.padre = padre
-
-    def __repr__(self):
-        return f"({self.fila}, {self.colum})"
 
 def leer_datos():
     global n, m, fila_inicio, columna_inicio, fila_final, columna_final, mapa
@@ -67,7 +59,7 @@ def bfs():
             # Reconstruir el camino desde la meta hasta el inicio
             camino = reconstruir_camino(nodo_actual)
             print("Camino encontrado:", camino)
-            visualizar_arbol_jerarquico(arbol_conexiones)
+            visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, camino)
             
             return camino
         
@@ -83,60 +75,10 @@ def bfs():
             if es_valido(nueva_fila, nueva_colum) and valido:
                 cola.append(Nodo(nueva_fila, nueva_colum, nodo_actual.pasos + 1, nodo_actual))
                 arbol_conexiones.append(((fila, colum), (nueva_fila, nueva_colum)))
-                visualizar_arbol_jerarquico(arbol_conexiones)
+                visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, [])
 
     print("No se puede llegar a la meta")        
     return None
-
-# Función para visualizar el árbol jerárquico usando NetworkX
-def visualizar_arbol_jerarquico(arbol_conexiones):
-    G = nx.DiGraph()
-    
-    # Agregar las conexiones del árbol al grafo
-    for nodo1, nodo2 in arbol_conexiones:
-        print(nodo1, nodo2)
-        G.add_edge(nodo1, nodo2)
-    
-    # Usamos un layout jerárquico
-    pos = hierarchy_pos(G, (fila_inicio, columna_inicio))  # Layout especial para árboles
-    
-    # Dibujar el árbol
-    nx.draw(G, pos, with_labels=True, node_size=500, node_color="orange", font_size=10)
-
-    resaltar_camino(G, pos, camino)
-    
-    plt.show()
-
-# Función para calcular la posición jerárquica del árbol
-def hierarchy_pos(G, root=None, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5):
-    pos = _hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter)
-    return pos
-
-def _hierarchy_pos(G, root, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5, pos=None, parent=None, parsed=[]):
-    if pos is None:
-        pos = {root: (xcenter, vert_loc)}
-    else:
-        pos[root] = (xcenter, vert_loc)
-    
-    children = list(G.neighbors(root))
-    if not isinstance(G, nx.DiGraph) and parent is not None:
-        children.remove(parent)
-    
-    if len(children) != 0:
-        dx = width / len(children)
-        nextx = xcenter - width / 2 - dx / 2
-        for child in children:
-            nextx += dx
-            pos = _hierarchy_pos(G, child, width=dx, vert_gap=vert_gap, vert_loc=vert_loc-vert_gap, xcenter=nextx, pos=pos, parent=root, parsed=parsed)
-    
-    return pos
-
-def resaltar_camino(G,pos,camino):
-     # Resaltar el camino encontrado
-    edge_path = [(camino[i], camino[i+1]) for i in range(len(camino) - 1)]
-    nx.draw_networkx_edges(G, pos, edgelist=edge_path, edge_color="red", width=2.5)
-
-
 
 if __name__ == "__main__":
     bfs()  # Ejecutar BFS y obtener el camino
