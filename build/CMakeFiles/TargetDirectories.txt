@@ -1,0 +1,10 @@
+C:/Users/santi/OneDrive/Documentos/Proyecto-IA/build/CMakeFiles/INSTALL.dir
+C:/Users/santi/OneDrive/Documentos/Proyecto-IA/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/santi/OneDrive/Documentos/Proyecto-IA/build/CMakeFiles/ZERO_CHECK.dir
+C:/Users/santi/OneDrive/Documentos/Proyecto-IA/build/flutter/CMakeFiles/flutter_wrapper_plugin.dir
+C:/Users/santi/OneDrive/Documentos/Proyecto-IA/build/flutter/CMakeFiles/flutter_wrapper_app.dir
+C:/Users/santi/OneDrive/Documentos/Proyecto-IA/build/flutter/CMakeFiles/flutter_assemble.dir
+C:/Users/santi/OneDrive/Documentos/Proyecto-IA/build/flutter/CMakeFiles/INSTALL.dir
+C:/Users/santi/OneDrive/Documentos/Proyecto-IA/build/runner/CMakeFiles/agent_mouse.dir
+C:/Users/santi/OneDrive/Documentos/Proyecto-IA/build/runner/CMakeFiles/INSTALL.dir
+C:/Users/santi/OneDrive/Documentos/Proyecto-IA/build/runner/CMakeFiles/ALL_BUILD.dir
