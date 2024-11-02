@@ -1,9 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-#importar desde la carpeta Arbol el archivo graficar_arbol
 from Arbol.graficar_arbol import visualizar_arbol_jerarquico
 from clase_nodo.class_nodo import Nodo 
-
 
 n, m = 0, 0  # Límites del mapa en filas y columnas
 fila_inicio, columna_inicio = 0, 0  # Posición inicial
@@ -39,8 +37,8 @@ def es_valido(fila, colum):
 
 def reconstruir_camino(nodo):
     while nodo is not None:
-        camino.append((nodo.fila, nodo.colum))  # Añadir la posición al camino
-        nodo = padres.get((nodo.fila, nodo.colum), None)  # Pasar al padre
+        camino.append((nodo.fila, nodo.colum, nodo.id))  # Añadir la posición al camino
+        nodo = padres.get((nodo.fila, nodo.colum, nodo.id), None)  # Pasar al padre
     camino.reverse()  # Invertir el camino para mostrar desde el inicio hasta la meta
     return camino
 
@@ -49,10 +47,10 @@ def dfs_izquierda_derecha():
 
     # Pila para realizar DFS
     pila = []
-    padre = Nodo(fila_inicio, columna_inicio)
+    padre = Nodo(fila_inicio, columna_inicio, 0)
     pila.append(padre)
-    padres[(fila_inicio, columna_inicio)] = None  # El nodo inicial no tiene padre
-    arbol.add_node((padre.fila, padre.colum))  # Agregar nodo inicial al árbol
+    padres[(fila_inicio, columna_inicio, 0)] = None  # El nodo inicial no tiene padre
+    arbol.add_node((padre.fila, padre.colum, padre.id))  # Agregar nodo inicial al árbol
 
     while pila:
         padre = pila.pop()  # Sacar el nodo del tope de la pila
@@ -63,7 +61,7 @@ def dfs_izquierda_derecha():
             print("Pasos para llegar a la meta:", padre.pasos)  # Cantidad de pasos
             camino = reconstruir_camino(padre)  # Reconstruir el camino
             print("Camino de profundidad:", camino)
-            visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, camino)  # Mostrar el árbol
+            visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, 0, camino)  # Mostrar el árbol
             return camino
 
         if not visitado[padre.fila][padre.colum]:  # Verificamos si ya fue visitado
@@ -81,13 +79,13 @@ def dfs_izquierda_derecha():
                     hijo = Nodo(nueva_fila, nueva_colum, padre.pasos + 1)
                     hijos_temp.append(hijo)  # Agregar a la lista temporal
                     print(f"Agregando nodo temporal: {hijo}")  # Nodo agregado temporalmente
-                    padres[(hijo.fila, hijo.colum)] = padre  # Registrar el padre completo (un objeto Nodo)
-                    arbol_conexiones.append(((padre.fila, padre.colum), (hijo.fila, hijo.colum)))
-                    visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, [])
+                    padres[(hijo.fila, hijo.colum, hijo.id)] = padre  # Registrar el padre completo (un objeto Nodo)
+                    arbol_conexiones.append(((padre.fila, padre.colum, padre.id), (hijo.fila, hijo.colum, hijo.id)))  # Conexión entre padre e hijo
+                    visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, 0, [])
 
                     # Agregar el nodo y la arista al árbol
                     arbol.add_node((hijo.fila, hijo.colum))  # Añadir hijo al árbol
-                    arbol.add_edge((padre.fila, padre.colum), (hijo.fila, hijo.colum))  # Conectar con el padre
+                    arbol.add_edge((padre.fila, padre.colum, padre.id), (hijo.fila, hijo.colum, hijo.id))  # Conectar con el padre
 
                     print(f"Padre: {padre} -> Hijo: {hijo}")  # Mostrar la conexión entre padre e hijo
 
@@ -96,7 +94,6 @@ def dfs_izquierda_derecha():
             pila.extend(hijos_temp)
 
     print("No se puede llegar a la meta")
-
 
 if __name__ == "__main__":
     dfs_izquierda_derecha()

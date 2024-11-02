@@ -1,9 +1,8 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 
-
 # Función para crear el arbol jerarquico en una imagen png llamada arbol.png
-def visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, camino):
+def visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, id, camino):
     G = nx.DiGraph()
     
     # Agregar las conexiones del árbol al grafo
@@ -11,7 +10,7 @@ def visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, c
         G.add_edge(nodo1, nodo2)
     
     # Usamos un layout jerárquico
-    pos = hierarchy_pos(G, (fila_inicio, columna_inicio))  # Layout especial para árboles
+    pos = hierarchy_pos(G, (fila_inicio, columna_inicio, id))  # Layout especial para árboles
     
     # Dibujar el árbol
     nx.draw(G, pos, with_labels=True, node_size=500, node_color="orange", font_size=10)
@@ -22,23 +21,28 @@ def visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, c
         nx.draw_networkx_edges(G, pos, edgelist=edge_path, edge_color="red", width=2.5)
     
     plt.savefig("arbol.png")
+    plt.show()
 
 
 
 # Función para calcular la posición jerárquica del árbol
 def hierarchy_pos(G, root=None, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5):
-    pos = _hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter)
+    pos = _hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter, parsed=set())
     return pos
 
-def _hierarchy_pos(G, root, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5, pos=None, parent=None, parsed=[]):
+def _hierarchy_pos(G, root, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5, pos=None, parent=None, parsed=None):
+    if parsed is None:
+        parsed = set()
+    parsed.add(root)  # Marcar el nodo como procesado
+    
     if pos is None:
         pos = {root: (xcenter, vert_loc)}
     else:
         pos[root] = (xcenter, vert_loc)
     
-    children = list(G.neighbors(root))
+    children = [child for child in G.neighbors(root) if child not in parsed]
     if not isinstance(G, nx.DiGraph) and parent is not None:
-        children.remove(parent)
+        children = [child for child in children if child != parent]
     
     if len(children) != 0:
         dx = width / len(children)
