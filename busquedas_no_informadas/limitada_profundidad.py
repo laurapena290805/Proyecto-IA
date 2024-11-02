@@ -13,7 +13,6 @@ padres = {}  # Diccionario para registrar el árbol de búsqueda
 arbol = nx.DiGraph()  # Grafo dirigido para representar el árbol de búsqueda
 
 
-
 def leer_datos():
     global n, m, fila_inicio, columna_inicio, fila_final, columna_final, mapa, profundidad_maxima
     n, m = map(int, input("Ingrese el tamaño de la matriz (n m): ").split())
@@ -26,8 +25,6 @@ def leer_datos():
     fila_final -= 1
     columna_final -= 1
     profundidad_maxima = int(input("Ingrese la profundidad máxima: "))
-    
-    
 
     
     mapa = [['' for _ in range(m + 1)] for _ in range(n + 1)]
