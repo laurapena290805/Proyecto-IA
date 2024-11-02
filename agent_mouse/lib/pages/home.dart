@@ -1,6 +1,10 @@
+
 import 'package:agent_mouse/utils/styles.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:agent_mouse/utils/buttonGrid.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -79,8 +83,12 @@ class CentralContainer extends StatefulWidget {
 class _CentralContainerState extends State<CentralContainer> {
   // Marcador seleccionado: 1 para azul/círculo, 2 para verde/check, 3 para rojo/X
   int selectedMarker = 1;
+  String algoritmoSeleccionado = 'limitada_profundidad';
+  late ButtonState buttonState;
+  bool isLoading = false;
 
-  ButtonGrid myButtonGrid = ButtonGrid(rows: 5, columns: 5, selectedMarker: 1);
+  ButtonGrid myButtonGrid =
+      const ButtonGrid(rows: 5, columns: 5, selectedMarker: 1);
 
   // Función para cambiar el marcador
   void setMarker(int marker) {
@@ -104,19 +112,27 @@ class _CentralContainerState extends State<CentralContainer> {
             children: [
               Expanded(
                 child: Container(
-                  //Es un cuadrado que se ajusta al tamaño de la pantalla
-                  width: MediaQuery.of(context).size.width *
-                      0.8, // Ancho 80% del ancho de la pantalla
-                  height: MediaQuery.of(context).size.height *
-                      0.6, // Alto 60% del alto de la pantalla
-                  decoration: const BoxDecoration(
-                      color: Color.fromARGB(75, 179, 179, 179)),
-                  child: const Center(
-                    child: Text('Centrar'),
-                    //Informacion dentro del contenedor
-                    //Text
-                  ),
-                ),
+                    //Es un cuadrado redondeado que se ajusta al tamaño de la pantalla
+
+                    width: MediaQuery.of(context).size.width *
+                        0.8, // Ancho 80% del ancho de la pantalla
+                    height: MediaQuery.of(context).size.height *
+                        0.6, // Alto 60% del alto de la pantalla
+                    //muestra una imagen en C:\Users\santi\OneDrive\Documentos\Proyecto-IA\arbol.png
+
+                    decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        color: Color.fromARGB(75, 179, 179, 179)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.asset(
+                          'lib/assets/arbol.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )),
               ),
               const SizedBox(width: 20),
               Expanded(
@@ -128,8 +144,8 @@ class _CentralContainerState extends State<CentralContainer> {
                 decoration: const BoxDecoration(
                     color: Color.fromARGB(75, 179, 179, 179)),
                 child: ButtonGrid(
-                  rows: 5,
-                  columns: 5,
+                  rows: 4,
+                  columns: 4,
                   selectedMarker: selectedMarker,
                 ),
               ) // Llama a ButtonGrid aquí
@@ -201,7 +217,7 @@ class _CentralContainerState extends State<CentralContainer> {
                 ElevatedButton(
                   onPressed: () {
                     // Acción al tocar el botón
-                    //leer los getter de buttonGrid
+                    _runAlgorithm();
                   },
                   child:
                       const Text('Iniciar', style: AppStyles.buttonTextStyle),
@@ -212,6 +228,117 @@ class _CentralContainerState extends State<CentralContainer> {
       ),
     );
   }
+
+  /*
+  Process? _pythonProcess; // Variable para almacenar el proceso del servidor
+
+  @override
+  void initState() {
+    super.initState();
+    _startPythonServer();
+  }
+
+  Future<void> _startPythonServer() async {
+    try {
+      String pythonScriptPath =
+          'C:/Users/santi/OneDrive/Documentos/Proyecto-ADA-II/Terminal_inteligente/app.py';
+      _pythonProcess = await Process.start('python', [pythonScriptPath]);
+      print('Servidor Python iniciado');
+
+      // Escuchar la salida del proceso para depurar
+      _pythonProcess!.stdout.transform(utf8.decoder).listen((data) {
+        print(data);
+      });
+    } catch (e) {
+      print('Error al iniciar el servidor: $e;;');
+    }
+  }
+
+  @override
+  void dispose() {
+    if (kDebugMode) {
+      print('dispose() llamado');
+    } // Para verificar si se llama
+    _stopPythonServer();
+    super.dispose();
+  }
+
+  Future<void> _stopPythonServer() async {
+    if (_pythonProcess != null) {
+      // Intenta cerrar el proceso
+      _pythonProcess!.kill();
+
+      // Espera un poco para asegurarte de que el proceso se cierre
+      await Future.delayed(
+          const Duration(seconds: 1)); // Ajusta el tiempo si es necesario
+
+      // Verifica si el proceso sigue corriendo
+      print('Servidor cerrado.');
+    }
+  }
+
+  */
+  // Función para ejecutar el algoritmo en el servidor
+  Future<void> _runAlgorithm() async {
+    setState(() {
+      isLoading = true;
+      //resultado = ''; // Reiniciar resultado
+    });
+
+    try {
+      print('Ejecutando algoritmo...');
+      print("");
+      print(buttonState.getinicioCoor);
+      print(buttonState.getmetaCoor);
+      print(buttonState.getmapaBotones);
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:5000/algorithms'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: json.encode({
+          /*
+          'A': int.parse(aController.text),
+          'B': int.parse(bController.text),
+          'n': int.parse(nController.text),
+          'ofertas': json
+              .decode(ofertasController.text), // Ofertas en formato correcto
+          'algoritmo': algoritmoSeleccionado // Algoritmo seleccionado
+          */
+          'Inicio': buttonState.getinicioCoor, // Inicio
+          'Meta': buttonState.getmetaCoor, // Meta
+          'Mapa': buttonState.getmetaCoor, // Bloqueos
+          'Algoritmo': algoritmoSeleccionado // Algoritmo seleccionado
+        }),
+      );
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          print("Si se pudo ${data['confirmacion']} ");
+          //resultado =
+          //    'La mejor asignación es: ${data['resultado']}\nValor Final: ${data['asignacion']}';
+        });
+      } else {
+        setState(() {
+          //resultado = 'Error en la ejecución';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        //resultado = 'Error: $e';
+      });
+    } finally {
+      setState(() {
+        //isLoading = false; // Termina la carga
+      });
+    }
+  }
+}
+
+void loaderImage() {
+  // Cargar la imagen
 }
 
 class ListItemsWidget extends StatelessWidget {

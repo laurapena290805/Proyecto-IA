@@ -2,7 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 
-# Función para visualizar el árbol jerárquico usando NetworkX
+# Función para crear el arbol jerarquico en una imagen png llamada arbol.png
 def visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, camino):
     G = nx.DiGraph()
     
@@ -21,7 +21,9 @@ def visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, c
         edge_path = [(camino[i], camino[i+1]) for i in range(len(camino) - 1)]
         nx.draw_networkx_edges(G, pos, edgelist=edge_path, edge_color="red", width=2.5)
     
-    plt.show()
+    plt.savefig("arbol.png")
+
+
 
 # Función para calcular la posición jerárquica del árbol
 def hierarchy_pos(G, root=None, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5):

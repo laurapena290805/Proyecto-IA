@@ -1,3 +1,4 @@
+// ignore: file_names
 import 'package:flutter/material.dart';
 
 class ButtonGrid extends StatefulWidget {
@@ -5,34 +6,32 @@ class ButtonGrid extends StatefulWidget {
   final int columns;
   final int selectedMarker; // Marcador seleccionado
 
-  const ButtonGrid(
-      {super.key,
-      required this.rows,
-      required this.columns,
-      required this.selectedMarker});
+  const ButtonGrid({
+    super.key,
+    required this.rows,
+    required this.columns,
+    required this.selectedMarker,
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _ButtonGridState createState() => _ButtonGridState();
 }
 
 class _ButtonGridState extends State<ButtonGrid> {
-  late List<List<int>> buttonStates; // Matriz de estados para cada botón
-  late List<List<String>>
-      displayMatrix; // Matriz de caracteres para la visualización
-  int? blueButtonIndex;
-  int? greenButtonIndex;
+  late ButtonState buttonState; // Nueva instancia de ButtonState
+  late List<List<int>> mapa; // Matriz de estados para cada botón
 
   // Coordenadas de los botones azul y verde
-  String blueCoordinates = '(x, y)';
-  String greenCoordinates = '(x, y)';
+  String inicioCoor = '(x, y)';
+  String metaXY = '(x, y)';
 
   @override
   void initState() {
     super.initState();
-    buttonStates = List.generate(
+    buttonState = ButtonState(rows: widget.rows, columns: widget.columns);
+    mapa = List.generate(
         widget.rows, (_) => List.generate(widget.columns, (_) => 0));
-    displayMatrix = List.generate(
-        widget.rows, (_) => List.generate(widget.columns, (_) => '.'));
   }
 
   void markButton(int row, int col) {
@@ -41,42 +40,38 @@ class _ButtonGridState extends State<ButtonGrid> {
     setState(() {
       // Actualizamos la matriz de visualización
       if (widget.selectedMarker == 3) {
-        // Permite múltiples selecciones de botones rojos
-        buttonStates[row][col] = buttonStates[row][col] == 3 ? 0 : 3;
-        displayMatrix[row][col] = buttonStates[row][col] == 3 ? '#' : '.';
+        mapa[row][col] = mapa[row][col] == 3 ? 0 : 3;
+        buttonState.updatemapaBotones(
+            row, col, mapa[row][col] == 3 ? '#' : '.');
       } else if (widget.selectedMarker == 1) {
-        // Cambiar a azul
-        if (blueButtonIndex != null) {
-          int oldRow = blueButtonIndex! ~/ widget.columns;
-          int oldCol = blueButtonIndex! % widget.columns;
-          buttonStates[oldRow][oldCol] = 0;
-          displayMatrix[oldRow][oldCol] = '.';
+        if (buttonState.getinicioCoor != null) {
+          int oldRow = buttonState.getinicioCoor! ~/ widget.columns;
+          int oldCol = buttonState.getinicioCoor! % widget.columns;
+          mapa[oldRow][oldCol] = 0;
+          buttonState.updatemapaBotones(oldRow, oldCol, '.');
         }
-        buttonStates[row][col] = 1;
-        displayMatrix[row][col] = '.';
-        blueButtonIndex = buttonIndex;
-        blueCoordinates =
-            '(${row + 1}, ${col + 1})'; // Guardar coordenadas en formato (x, y)
+        mapa[row][col] = 1;
+        buttonState.updatemapaBotones(row, col, '.');
+        buttonState.updateinicioCoor(buttonIndex);
+        inicioCoor = '(${row + 1}, ${col + 1})';
       } else if (widget.selectedMarker == 2) {
-        // Cambiar a verde
-        if (greenButtonIndex != null) {
-          int oldRow = greenButtonIndex! ~/ widget.columns;
-          int oldCol = greenButtonIndex! % widget.columns;
-          buttonStates[oldRow][oldCol] = 0;
-          displayMatrix[oldRow][oldCol] = '.';
+        if (buttonState.getmetaCoor != null) {
+          int oldRow = buttonState.getmetaCoor! ~/ widget.columns;
+          int oldCol = buttonState.getmetaCoor! % widget.columns;
+          mapa[oldRow][oldCol] = 0;
+          buttonState.updatemapaBotones(oldRow, oldCol, '.');
         }
-        buttonStates[row][col] = 2;
-        displayMatrix[row][col] = '.';
-        greenButtonIndex = buttonIndex;
-        greenCoordinates =
-            '(${row + 1}, ${col + 1})'; // Guardar coordenadas en formato (x, y)
+        mapa[row][col] = 2;
+        buttonState.updatemapaBotones(row, col, '.');
+        buttonState.updatemetaCoor(buttonIndex);
+        metaXY = '(${row + 1}, ${col + 1})';
       }
 
       // Imprimir la matriz en la consola (para depuración)
       print('Matriz de visualización:');
-      print(displayMatrix);
-      print('Coordenadas de salida: $blueCoordinates');
-      print('Coordenadas de la meta: $greenCoordinates');
+      print(buttonState.getmapaBotones);
+      print('Coordenadas de salida: $inicioCoor');
+      print('Coordenadas de la meta: $metaXY');
     });
   }
 
@@ -99,7 +94,7 @@ class _ButtonGridState extends State<ButtonGrid> {
 
             Color buttonColor;
             Widget buttonContent;
-            switch (buttonStates[row][col]) {
+            switch (mapa[row][col]) {
               case 1:
                 buttonColor = Colors.blue;
                 buttonContent = const Icon(Icons.circle, color: Colors.white);
@@ -132,5 +127,38 @@ class _ButtonGridState extends State<ButtonGrid> {
         );
       },
     );
+  }
+}
+
+class ButtonState {
+  List<List<String>>
+      mapaBotones; // Matriz de caracteres para la visualización
+  int? inicioCoor;
+  int? metaCoor;
+
+  ButtonState({
+    required int rows,
+    required int columns,
+  })  : mapaBotones =
+            List.generate(rows, (_) => List.generate(columns, (_) => '.')),
+        inicioCoor = null,
+        metaCoor = null;
+
+  // Getters
+  List<List<String>> get getmapaBotones => mapaBotones;
+  int? get getinicioCoor => inicioCoor;
+  int? get getmetaCoor => metaCoor;
+
+  // Métodos para actualizar índices y matriz
+  void updateinicioCoor(int index) {
+    inicioCoor = index;
+  }
+
+  void updatemetaCoor(int index) {
+    metaCoor = index;
+  }
+
+  void updatemapaBotones(int row, int col, String value) {
+    mapaBotones[row][col] = value;
   }
 }

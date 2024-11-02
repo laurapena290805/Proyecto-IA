@@ -22,27 +22,50 @@ class Nodo:
 def leer_datos():
     global n, m, fila_inicio, columna_inicio, fila_final, columna_final, mapa, profundidad_maxima
     n, m = map(int, input("Ingrese el tamaño de la matriz (n m): ").split())
+    n -= 1
+    m -= 1
     fila_inicio, columna_inicio = map(int, input("Ingrese la posición inicial (fila columna): ").split())
+    fila_inicio -= 1
+    columna_inicio -= 1
     fila_final, columna_final = map(int, input("Ingrese la posición final (fila columna): ").split())
+    fila_final -= 1
+    columna_final -= 1
     profundidad_maxima = int(input("Ingrese la profundidad máxima: "))
     
+    
+
+    
     mapa = [['' for _ in range(m + 1)] for _ in range(n + 1)]
-    for i in range(1, n + 1):
-        mapa[i] = [''] + list(input(f"Ingrese la fila {i} del mapa: ").strip())
+    print(mapa)
+    for i in range(0, n+1):
+        mapa[i] = list(input(f"Ingrese la fila {i} del mapa: ").strip())
+        print(mapa)
+    print("")
+
+def extraer_datos(mapa, inicio, meta):
+    global n, m, fila_inicio, columna_inicio, fila_final, columna_final
+    n = len(mapa)
+    m = len(mapa[0])
+    fila_inicio = inicio[0]
+    columna_inicio = inicio[1]
+    fila_final = meta[0]
+    columna_final = meta[1]
 
 def es_valido(fila, colum):
-    return 0 < fila <= n and 0 < colum <= m and mapa[fila][colum] != '#' and not visitado[fila][colum]
-
+    return 0 <= fila <= n and 0 <= colum <= m and mapa[fila][colum] != '#' and not visitado[fila][colum]
+    
 def reconstruir_camino(nodo):
     camino = []
     while nodo is not None:
-        camino.append((nodo.fila, nodo.colum))
+        camino.append((nodo.fila + 1, nodo.colum + 1))
         nodo = padres.get((nodo.fila, nodo.colum), None)
     camino.reverse()
     return camino
 
-def dls_limitProfundidad():
-    leer_datos()
+def dls_limitProfundidad(mapita, inicio, meta):
+
+    #leer_datos()
+    extraer_datos(mapita, inicio, meta)
 
     pila = []
     padre = Nodo(fila_inicio, columna_inicio)
@@ -51,6 +74,7 @@ def dls_limitProfundidad():
     arbol.add_node((padre.fila, padre.colum))
 
     while pila:
+        print("Pila:", pila)
         padre, profundidad = pila.pop()  # Sacar el nodo y su profundidad
 
         if padre.fila == fila_final and padre.colum == columna_final:
@@ -65,7 +89,7 @@ def dls_limitProfundidad():
 
         if not visitado[padre.fila][padre.colum]:  
             visitado[padre.fila][padre.colum] = True  
-
+            print("hola")
             hijos_temp = []  # Lista temporal para almacenar los hijos
             # Exploramos en el orden deseado: arriba, derecha, abajo, izquierda
             for movimiento in [(-1, 0), (1, 0), (0, -1), (0, 1)]:  
@@ -76,8 +100,8 @@ def dls_limitProfundidad():
                     hijo = Nodo(nueva_fila, nueva_colum, padre.pasos + 1)
                     hijos_temp.append((hijo, profundidad + 1))  # Añadir nodo hijo a la lista temporal
                     padres[(hijo.fila, hijo.colum)] = padre
-                    arbol.add_node((hijo.fila, hijo.colum))
-                    arbol.add_edge((padre.fila, padre.colum), (hijo.fila, hijo.colum))
+                    arbol.add_node((hijo.fila+1, hijo.colum+1))
+                    arbol.add_edge((padre.fila+1, padre.colum+1), (hijo.fila+1, hijo.colum+1))
 
             # Invertir el orden de los hijos antes de añadirlos a la pila
             for hijo in reversed(hijos_temp):
@@ -85,6 +109,7 @@ def dls_limitProfundidad():
 
     print("No se puede llegar a la meta o se alcanzó el límite de profundidad")
     dibujar_arbol()
+
 
 def dibujar_arbol_grafo(nodo, x=0, y=0, dx=7, dy=3, ax=None, posiciones=None, nivel=0):
     if ax is None:
@@ -103,7 +128,7 @@ def dibujar_arbol_grafo(nodo, x=0, y=0, dx=7, dy=3, ax=None, posiciones=None, ni
         nuevo_y = y - dy
         ax.plot([x, nuevo_x], [y, nuevo_y], 'k-')
         dibujar_arbol_grafo(hijo, nuevo_x, nuevo_y, dx / 2, dy, ax, posiciones, nivel + 1)
-    
+
     ax.text(x, y, str(nodo), ha='center', va='center',
             bbox=dict(facecolor='white', edgecolor='black', boxstyle='circle'))
 
@@ -113,9 +138,9 @@ def dibujar_arbol_grafo(nodo, x=0, y=0, dx=7, dy=3, ax=None, posiciones=None, ni
         plt.show()
 
 def dibujar_arbol():
-    dibujar_arbol_grafo((fila_inicio, columna_inicio))
+    dibujar_arbol_grafo((fila_inicio + 1 , columna_inicio + 1))
     plt.title("Árbol de Búsqueda DFS(Limitada por Profundidad)\n")
     plt.show()
 
-if __name__ == "__main__":
-    dls_limitProfundidad()
+#if __name__ == "__main__":
+#   dls_limitProfundidad()
