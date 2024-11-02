@@ -97,6 +97,5 @@ def dfs_izquierda_derecha():
 
     print("No se puede llegar a la meta")
 
-
 if __name__ == "__main__":
     dfs_izquierda_derecha()

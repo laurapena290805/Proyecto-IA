@@ -1,7 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 
-
 # Función para visualizar el árbol jerárquico usando NetworkX
 def visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, camino):
     G = nx.DiGraph()
@@ -25,18 +24,22 @@ def visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, c
 
 # Función para calcular la posición jerárquica del árbol
 def hierarchy_pos(G, root=None, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5):
-    pos = _hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter)
+    pos = _hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter, parsed=set())
     return pos
 
-def _hierarchy_pos(G, root, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5, pos=None, parent=None, parsed=[]):
+def _hierarchy_pos(G, root, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5, pos=None, parent=None, parsed=None):
+    if parsed is None:
+        parsed = set()
+    parsed.add(root)  # Marcar el nodo como procesado
+    
     if pos is None:
         pos = {root: (xcenter, vert_loc)}
     else:
         pos[root] = (xcenter, vert_loc)
     
-    children = list(G.neighbors(root))
+    children = [child for child in G.neighbors(root) if child not in parsed]
     if not isinstance(G, nx.DiGraph) and parent is not None:
-        children.remove(parent)
+        children = [child for child in children if child != parent]
     
     if len(children) != 0:
         dx = width / len(children)

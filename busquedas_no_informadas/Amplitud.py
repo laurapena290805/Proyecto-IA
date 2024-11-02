@@ -5,7 +5,6 @@ from Arbol.graficar_arbol import visualizar_arbol_jerarquico
 from clase_nodo.class_nodo import Nodo
 
 
-
 n, m = 0, 0  # Límites del mapa en filas y columnas
 fila_inicio, columna_inicio = 0, 0  # Posición inicial
 fila_final, columna_final = 0, 0  # Posición final
@@ -16,6 +15,8 @@ arbol_conexiones = []  # Lista para almacenar las conexiones del árbol
 camino = []
 
 def leer_datos():
+    print("BUSQUEDA POR AMPLITUD")
+    
     global n, m, fila_inicio, columna_inicio, fila_final, columna_final, mapa
     # Leer el tamaño de la matriz
     n, m = map(int, input("Ingrese el tamaño de la matriz (n m): ").split())
