@@ -21,6 +21,7 @@ def visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, c
         nx.draw_networkx_edges(G, pos, edgelist=edge_path, edge_color="red", width=2.5)
     
     plt.savefig("arbol.png")
+    plt.show()
 
 
 
