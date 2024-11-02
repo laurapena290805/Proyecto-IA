@@ -1,5 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+from clase_nodo.class_nodo import Nodo
+from Arbol.graficar_arbol import visualizar_arbol_jerarquico
 
 n, m = 0, 0  # Límites del mapa (filas, columnas)
 fila_inicio, columna_inicio = 0, 0  
@@ -10,14 +12,7 @@ visitado = [[False for _ in range(105)] for _ in range(105)]  # Matriz para los 
 padres = {}  # Diccionario para registrar el árbol de búsqueda
 arbol = nx.DiGraph()  # Grafo dirigido para representar el árbol de búsqueda
 
-class Nodo:
-    def __init__(self, fila, colum, pasos=0):
-        self.fila = fila
-        self.colum = colum
-        self.pasos = pasos
 
-    def __repr__(self):
-        return f"({self.fila}, {self.colum})"
 
 def leer_datos():
     global n, m, fila_inicio, columna_inicio, fila_final, columna_final, mapa, profundidad_maxima

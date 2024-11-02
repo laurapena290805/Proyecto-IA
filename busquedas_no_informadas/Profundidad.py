@@ -2,6 +2,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 #importar desde la carpeta Arbol el archivo graficar_arbol
 from Arbol.graficar_arbol import visualizar_arbol_jerarquico
+from clase_nodo.class_nodo import Nodo 
+
 
 n, m = 0, 0  # Límites del mapa en filas y columnas
 fila_inicio, columna_inicio = 0, 0  # Posición inicial
@@ -12,15 +14,6 @@ padres = {}  # Diccionario para registrar el árbol de profundidad (DFS)
 arbol = nx.DiGraph()  # Grafo dirigido para representar el árbol de búsquedavisualizar_arbol_jerarquico
 arbol_conexiones = []  # Lista para almacenar las conexiones del árbol
 camino = []  # Lista para almacenar el camino encontrado
-
-class Nodo:
-    def __init__(self, fila, colum, pasos=0):
-        self.fila = fila
-        self.colum = colum
-        self.pasos = pasos
-
-    def __repr__(self):
-        return f"({self.fila}, {self.colum})"
 
 
 def leer_datos():
@@ -107,5 +100,3 @@ def dfs_izquierda_derecha():
 
 if __name__ == "__main__":
     dfs_izquierda_derecha()
-
-
