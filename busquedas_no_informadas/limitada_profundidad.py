@@ -101,36 +101,88 @@ def dls_limitProfundidad():
     print("No se puede llegar a la meta o se alcanzó el límite de profundidad")
 
 """
-def dibujar_arbol_grafo(nodo, x=0, y=0, dx=7, dy=3, ax=None, posiciones=None, nivel=0):
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+    
+def calcular_ancho_subarbol(nodo, arbol):
+    # Calcula el ancho del subárbol basado en el número de hijos
+    hijos = list(arbol.successors(nodo))
+    if not hijos:
+        return 1  # Ancho mínimo de un nodo
+
+    # Suma de los anchos de los subárboles hijos
+    return sum(calcular_ancho_subarbol(hijo, arbol) for hijo in hijos)
+
+def dibujar_arbol_grafo(nodo, x=0, y=0, dx=10, dy=5, ax=None, posiciones=None, nivel=0, arbol=None, ancho_total=None, camino=None):
     if ax is None:
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(12, 8))
         ax.set_aspect('equal')
         ax.axis('off')
     
     if posiciones is None:
         posiciones = {}
     
+    # Si es la primera llamada, calcular la posición inicial centrada del nodo raíz
+    if nivel == 0 and ancho_total is None:
+        ancho_total = calcular_ancho_subarbol(nodo, arbol)
+        x = dx * (ancho_total - 1) / 2  # Centrar el nodo raíz
+
     posiciones[nodo] = (x, y)
     
     hijos = list(arbol.successors(nodo))
-    for i, hijo in enumerate(hijos):
-        nuevo_x = x + dx * (i - len(hijos) / 2)
+    total_ancho = calcular_ancho_subarbol(nodo, arbol)  # Ancho total del subárbol actual
+
+    # Definir la posición inicial de los hijos en el eje x
+    hijo_x = x - dx * (total_ancho - 1) / 2
+
+    for hijo in hijos:
+        ancho_subarbol_hijo = calcular_ancho_subarbol(hijo, arbol)
+        nuevo_x = hijo_x + dx * (ancho_subarbol_hijo - 1) / 2
         nuevo_y = y - dy
         ax.plot([x, nuevo_x], [y, nuevo_y], 'k-')
-        dibujar_arbol_grafo(hijo, nuevo_x, nuevo_y, dx / 2, dy, ax, posiciones, nivel + 1)
+        
+        # Llamada recursiva para el hijo
+        dibujar_arbol_grafo(hijo, nuevo_x, nuevo_y, dx, dy, ax, posiciones, nivel + 1, arbol, ancho_total, camino)
+        
+        # Ajustar la posición x para el siguiente hijo
+        hijo_x += dx * ancho_subarbol_hijo
 
+    # Colorear el nodo si está en el camino
+    color_nodo = 'lightblue' if camino and nodo in camino else 'white'
+    
+    # Dibujar el nodo
+    fig_width, fig_height = ax.figure.get_size_inches()
+    font_size = max(10, int((fig_width + fig_height) * 1.2 / (nivel + 2)))  # Escalar el tamaño de la fuente
     ax.text(x, y, str(nodo), ha='center', va='center',
-            bbox=dict(facecolor='white', edgecolor='black', boxstyle='circle'))
+            fontsize=font_size,
+            bbox=dict(facecolor=color_nodo, edgecolor='black', boxstyle='circle'))
 
-    if ax is None:
-        plt.figure(figsize=(10, 10))
-        plt.title("Árbol de Búsqueda DFS(Limitada por Profundidad)\n")
+    # Mostrar la gráfica solo si es la primera llamada
+    if nivel == 0:
+        plt.title("Árbol de Búsqueda DFS (Centrado y Escalable)")
         plt.show()
 
-def dibujar_arbol():
-    dibujar_arbol_grafo((fila_inicio + 1 , columna_inicio + 1))
-    plt.title("Árbol de Búsqueda DFS(Limitada por Profundidad)\n")
-    plt.show()
+# Función para dibujar el árbol con el camino resaltado
+def dibujar_arbol_con_camino(camino):
+    dibujar_arbol_grafo((fila_inicio + 1, columna_inicio + 1), arbol=arbol, camino=camino)
+
+
+
+if __name__ == "__main__":
+    
+    n, m = 4,6
+    mapa = [
+        ['.', '.', '.', '.', '#', '#'],
+        ['.', '.', '#', '.', '.', '.'],
+        ['.', '.', '.', '.', '#', '#'],
+        ['.', '.', '#', '#', '#', '#']]
+    inicio = (2,1)
+    meta = (2,6)
+    extraer_datos(mapa,inicio,meta)
+    dls_limitProfundidad()
+
 """
 if __name__ == "__main__":
    dls_limitProfundidad()
