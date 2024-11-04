@@ -11,7 +11,3 @@ from busquedas_no_informadas.profundidad_iterativa import profundidad_iterativa
 def leer_datos():
     pass
 
-
-
-def recorrido_laberinto():
-    pass

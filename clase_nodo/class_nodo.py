@@ -12,3 +12,6 @@ class Nodo:
 
     def __repr__(self):
         return f"({self.fila}, {self.colum}, {self.id})"  # Incluir el ID en la representación
+    
+    def __lt__(self, otro):
+        return self.pasos < otro.pasos
