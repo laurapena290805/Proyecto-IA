@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from collections import deque
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -39,7 +43,6 @@ def reconstruir_camino(nodo):
         nodo = nodo.padre
     camino.reverse()  # Invertir el camino para mostrar desde el inicio hasta la meta
     return camino
-
 def ucs():
     leer_datos()
 
@@ -84,7 +87,6 @@ def ucs():
 
     print("No se puede llegar a la meta")        
     return None
-
 
 if __name__ == "__main__":
     ucs()  # Ejecutar UCS y obtener el camino
