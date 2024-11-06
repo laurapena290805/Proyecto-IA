@@ -1,113 +1,145 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+from clase_nodo.class_nodo import Nodo
+from Arbol.graficar_arbol import visualizar_arbol_jerarquico
 
-class Nodo:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.vecinos = []
+n, m = 0, 0  # Límites del mapa (filas, columnas)
+fila_inicio, columna_inicio = 0, 0  
+fila_final, columna_final = 0, 0  
+mapa = []
+visitado = [[False for _ in range(105)] for _ in range(105)]  # Matriz para los nodos visitados
+padres = {}  # Diccionario para registrar el árbol de búsqueda
+arbol = nx.DiGraph()  # Grafo dirigido para representar el árbol de búsqueda
+arbol_conexiones = []  # Lista para almacenar las conexiones del árbol
 
-    def __repr__(self):
-        return f"({self.x}, {self.y})"
 
-    def reiniciar_vecinos(self):
-        """Reinicia la lista de vecinos para la próxima iteración."""
-        self.vecinos = []
+def leer_datos():
+    global n, m, fila_inicio, columna_inicio, fila_final, columna_final, mapa
+    # Leer tamaño del mapa
+    n, m = map(int, input("Ingrese el tamaño de la matriz (n m): ").split())
+    n += 1
+    m += 1
+    # Crear mapa vacío
+    mapa = [['.' for _ in range(m)] for _ in range(n)]
 
-def obtener_vecinos(nodo, nodos_bloqueados, tamaño=4):
-    movimientos = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-    vecinos = []
+    # Leer posición inicial y final en base cero
+    fila_inicio, columna_inicio = map(int, input("Ingrese la posición inicial (fila columna): ").split())
+    fila_final, columna_final = map(int, input("Ingrese la posición final (fila columna): ").split())
 
-    for dx, dy in movimientos:
-        nuevo_x, nuevo_y = nodo.x + dx, nodo.y + dy
-        if 0 <= nuevo_x < tamaño and 0 <= nuevo_y < tamaño and (nuevo_x, nuevo_y) not in nodos_bloqueados:
-            vecino = Nodo(nuevo_x, nuevo_y)
-            vecinos.append(vecino)
+    # Validar posiciones de inicio y final dentro de los límites del mapa
+    if not (0 <= fila_inicio < n and 0 <= columna_inicio < m):
+        raise ValueError("La posición inicial está fuera de los límites del mapa.")
+    if not (0 <= fila_final < n and 0 <= columna_final < m):
+        raise ValueError("La posición final está fuera de los límites del mapa.")
 
-    return vecinos
+    # Leer las posiciones de los muros
+    cantidad_muros = int(input("Ingrese la cantidad de muros: "))
+    for _ in range(cantidad_muros):
+        fila_muro, col_muro = map(int, input("Ingrese la posición del muro (fila columna): ").split())
 
-def dfs_limitado(nodo, objetivo, profundidad_limite, visitados, arbol_explorado, nodos_bloqueados, arbol):
-    if nodo.x == objetivo.x and nodo.y == objetivo.y:
-        return [nodo]
+        # Validar que los muros estén dentro de los límites
+        if 0 <= fila_muro < n and 0 <= col_muro < m:
+            mapa[fila_muro][col_muro] = '#'  # Marcar muro en el mapa
+        else:
+            print(f"Advertencia: la posición del muro ({fila_muro}, {col_muro}) está fuera de los límites y será ignorada.")
 
-    if profundidad_limite <= 0:
-        return None
 
-    visitados.add((nodo.x, nodo.y))
+def extraer_datos(mapa, inicio, meta):
+    global n, m, fila_inicio, columna_inicio, fila_final, columna_final
+    n = len(mapa)
+    m = len(mapa[0])
+    fila_inicio = inicio[0]
+    columna_inicio = inicio[1]
+    fila_final = meta[0]
+    columna_final = meta[1]
 
-    for vecino in obtener_vecinos(nodo, nodos_bloqueados):
-        if (vecino.x, vecino.y) not in visitados:
-            nodo.vecinos.append(vecino)
-            arbol_explorado.append(vecino)
-            arbol.add_node((vecino.x, vecino.y))
-            arbol.add_edge((nodo.x, nodo.y), (vecino.x, vecino.y))
 
-            resultado = dfs_limitado(vecino, objetivo, profundidad_limite - 1, visitados, arbol_explorado, nodos_bloqueados, arbol)
-            if resultado:
-                return [nodo] + resultado
+def es_valido(fila, colum):
+    return 0 <= fila < n and 0 <= colum < m and mapa[fila][colum] != '#' and not visitado[fila][colum]
 
-    visitados.remove((nodo.x, nodo.y))
-    return None
 
-def dibujar_arbol_grafo(arbol):
-    pos = {}
-    niveles = nx.single_source_shortest_path_length(arbol, source=(0, 2))
+def reconstruir_camino(nodo):
+    camino = []
+    while nodo is not None:
+        camino.append((nodo.fila, nodo.colum, nodo.id))
+        nodo = padres.get((nodo.fila, nodo.colum, nodo.id), None)
+    camino.reverse()
+    return camino
 
-    # Definir las posiciones invirtiendo horizontalmente y escalando verticalmente
-    for nodo, nivel in niveles.items():
-        pos[nodo] = (-nodo[1], -nivel * 2)  # Invertir x y escalar y para más espacio vertical
 
-    # Aumentar el tamaño de la figura
-    plt.figure(figsize=(12, 8))
+def dfs_por_nivel():
+    leer_datos()
+    nivel_actual = [Nodo(fila_inicio, columna_inicio, 0)]  # Nivel inicial
+    padres[(fila_inicio, columna_inicio, 0)] = None
+    arbol.add_node((fila_inicio, columna_inicio, 0))
+    profundidad = 0  # Contador de profundidad
+    iteracion = 0  # Contador de iteración
 
-    labels = {nodo: f"({nodo[0]}, {nodo[1]})" for nodo in arbol.nodes}
-    nx.draw(arbol, pos, with_labels=True, labels=labels, 
-            node_color='lightblue', node_size=3000, font_size=10)
-    
-    plt.title("Árbol de Búsqueda DFS (Limitado por Profundidad)\n")
-    plt.show()
+    while nivel_actual:
+        siguiente_nivel = []
+        print(f"\nProfundidad: {profundidad}")
 
-def busqueda_profundidad_iterativa(inicio, objetivo, nodos_bloqueados):
-    iteraciones = 0
-    profundidad = 0
-    arbol = nx.DiGraph()
+        for padre in nivel_actual:
+            iteracion += 1
+            camino_parcial = reconstruir_camino(padre)  # Camino actual hasta este nodo
+            print(f"Iteración: {iteracion}")
+            print(f"Visitando nodo en posición: ({padre.fila}, {padre.colum}), ID: {padre.id}")
+            print(f"Camino parcial hasta este nodo: {camino_parcial}")
 
-    while True:
-        visitados = set()
-        arbol_explorado = [inicio]
-        arbol.add_node((inicio.x, inicio.y))
+            # Verificar si llegamos al nodo final
+            if padre.fila == fila_final and padre.colum == columna_final:
+                caminito = reconstruir_camino(padre)
+                print("Camino completo:", caminito)
+                visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, 0, caminito)
+                return True
 
-        reiniciar_vecinos_recursivo(inicio)
+            # Marcar nodo como visitado
+            if not visitado[padre.fila][padre.colum]:
+                visitado[padre.fila][padre.colum] = True
+                hijos_temp = []
 
-        resultado = dfs_limitado(inicio, objetivo, profundidad, visitados, arbol_explorado, nodos_bloqueados, arbol)
+                # Exploramos en el orden deseado: arriba, derecha, abajo, izquierda
+                for movimiento in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                    nueva_fila = padre.fila + movimiento[0]
+                    nueva_colum = padre.colum + movimiento[1]
 
-        if resultado:
-            print(f"\nCamino encontrado: {[str(n) for n in resultado]}")
-            dibujar_arbol_grafo(arbol)
-            return resultado
+                    if es_valido(nueva_fila, nueva_colum):
+                        hijo = Nodo(nueva_fila, nueva_colum, padre.pasos + 1)
+                        hijos_temp.append(hijo)
+                        padres[(hijo.fila, hijo.colum, hijo.id)] = padre
+                        arbol.add_node((hijo.fila, hijo.colum, hijo.id))
+                        arbol.add_edge((padre.fila, padre.colum, padre.id), (hijo.fila, hijo.colum, hijo.id))
+                        arbol_conexiones.append(((padre.fila, padre.colum, padre.id), (hijo.fila, hijo.colum, hijo.id)))
+                        
+                        # Mostrar visualización del árbol con cada nodo agregado
+                        visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, 0, [])
 
-        iteraciones += 1
+                # Añadir todos los hijos del nodo actual al siguiente nivel
+                siguiente_nivel.extend(hijos_temp)
+
+        # Cambiar al siguiente nivel
+        nivel_actual = siguiente_nivel
         profundidad += 1
 
-        if iteraciones >= 10:
-            print("\nSe alcanzó el límite de iteraciones.")
-            dibujar_arbol_grafo(arbol)
-            return "No se encontró un camino"
+    print("No se puede llegar a la meta")
+    return False
 
-def reiniciar_vecinos_recursivo(nodo):
-    nodo.reiniciar_vecinos()
-    for vecino in nodo.vecinos:
-        reiniciar_vecinos_recursivo(vecino)
 
 if __name__ == "__main__":
-    inicio = Nodo(0, 2)
-    objetivo = Nodo(3, 1)
-    nodos_bloqueados = [(1, 1), (1, 2), (2, 1), (3, 3)]
+    dfs_por_nivel()
 
-    camino = busqueda_profundidad_iterativa(inicio, objetivo, nodos_bloqueados)
 
-    if camino == "No se encontró un camino":
-        print(camino)
+
+
+
+
+
+
+
+
+
+
+
 
 
 
