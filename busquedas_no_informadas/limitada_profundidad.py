@@ -1,37 +1,22 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import networkx as nx
 import matplotlib.pyplot as plt
 from clase_nodo.class_nodo import Nodo
 from Arbol.graficar_arbol import visualizar_arbol_jerarquico
+#from main import Busqueda
 
 n, m = 0, 0  # Límites del mapa (filas, columnas)
 fila_inicio, columna_inicio = 0, 0  
 fila_final, columna_final = 0, 0  
-profundidad_maxima = 0  # Límite de profundidad
+profundidad_maxima = 10 # Límite de profundidad
 mapa = []
 visitado = [[False for _ in range(105)] for _ in range(105)]  # Matriz para los nodos visitados
 padres = {}  # Diccionario para registrar el árbol de búsqueda
 arbol = nx.DiGraph()  # Grafo dirigido para representar el árbol de búsqueda
 arbol_conexiones = []  # Lista para almacenar las conexiones del árbol
-
-
-def leer_datos():
-    global n, m, fila_inicio, columna_inicio, fila_final, columna_final, mapa, profundidad_maxima
-    n, m = map(int, input("Ingrese el tamaño de la matriz (n m): ").split())
-    n -= 1
-    m -= 1
-    fila_inicio, columna_inicio = map(int, input("Ingrese la posición inicial (fila columna): ").split())
-    fila_inicio -= 1
-    columna_inicio -= 1
-    fila_final, columna_final = map(int, input("Ingrese la posición final (fila columna): ").split())
-    fila_final -= 1
-    columna_final -= 1
-    profundidad_maxima = int(input("Ingrese la profundidad máxima: "))
-
-    
-    mapa = [['' for _ in range(m + 1)] for _ in range(n + 1)]
-    for i in range(0, n+1):
-        mapa[i] = list(input(f"Ingrese la fila {i} del mapa: ").strip())
-    
 
 def extraer_datos(mapa, inicio, meta):
     global n, m, fila_inicio, columna_inicio, fila_final, columna_final
@@ -43,8 +28,8 @@ def extraer_datos(mapa, inicio, meta):
     columna_final = meta[1]
 
 def es_valido(fila, colum):
-    return 0 <= fila <= n and 0 <= colum <= m and mapa[fila][colum] != '#' and not visitado[fila][colum]
-    
+    return 0 <= fila < n and 0 <= colum < m and mapa[fila][colum] != '#' and not visitado[fila][colum]
+
 def reconstruir_camino(nodo):
     camino = []
     while nodo is not None:
@@ -53,52 +38,101 @@ def reconstruir_camino(nodo):
     camino.reverse()
     return camino
 
-def dls_limitProfundidad():
+def dls_limitProfundidad(mapita, inicio, meta, iteraciones_max):
+    extraer_datos(mapita, [inicio[0][0].fila, inicio[0][0].colum], meta)
 
-    leer_datos()
-    #extraer_datos(mapita, inicio, meta)
+    pila = inicio
+    iteraciones = 0
 
-    pila = []
-    padre = Nodo(fila_inicio, columna_inicio, 0)
-    pila.append((padre, 0))  # Añadir nodo inicial con profundidad 0
-    padres[(fila_inicio, columna_inicio, 0)] = None
-    arbol.add_node((padre.fila, padre.colum, padre.id))
-
-    while pila:
+    while pila and iteraciones < iteraciones_max:
+        print("Pila" , pila)
         padre, profundidad = pila.pop()  # Sacar el nodo y su profundidad
+        print("Padre", padre, "Profundidad", profundidad)
+        
 
         if padre.fila == fila_final and padre.colum == columna_final:
             print("Pasos para llegar a la meta:", padre.pasos)
             caminito = reconstruir_camino(padre)
             print("Camino:", caminito)
-            visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio +1 , columna_inicio + 1, 0, caminito)
+            visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio + 1, columna_inicio + 1, 0, caminito)
             return
 
-        if profundidad >= profundidad_maxima:
-            continue
+        if profundidad < profundidad_maxima:
+            if not visitado[padre.fila][padre.colum]:  
+                visitado[padre.fila][padre.colum] = True  
+                hijos_temp = []  # Lista temporal para almacenar los hijos
+                
+                for movimiento in [(-1, 0), (1, 0), (0, -1), (0, 1)]:  
+                    nueva_fila = padre.fila + movimiento[0]
+                    nueva_colum = padre.colum + movimiento[1]
 
-        if not visitado[padre.fila][padre.colum]:  
-            visitado[padre.fila][padre.colum] = True  
-            hijos_temp = []  # Lista temporal para almacenar los hijos
-            # Exploramos en el orden deseado: arriba, derecha, abajo, izquierda
-            for movimiento in [(-1, 0), (1, 0), (0, -1), (0, 1)]:  
-                nueva_fila = padre.fila + movimiento[0]
-                nueva_colum = padre.colum + movimiento[1]
+                    if es_valido(nueva_fila, nueva_colum):
+                        hijo = Nodo(nueva_fila, nueva_colum, padre.pasos + 1)
+                        hijos_temp.append((hijo, profundidad + 1))  # Añadir nodo hijo a la lista temporal
+                        padres[(hijo.fila, hijo.colum, hijo.id)] = padre
+                        arbol.add_node((hijo.fila + 1, hijo.colum + 1, hijo.id))
+                        arbol.add_edge((padre.fila + 1, padre.colum + 1, padre.id), (hijo.fila + 1, hijo.colum + 1, hijo.id))
+                        arbol_conexiones.append(((padre.fila + 1, padre.colum + 1, padre.id), (hijo.fila + 1, hijo.colum + 1, hijo.id)))
+                        visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio + 1, columna_inicio + 1, 0, [])
 
-                if es_valido(nueva_fila, nueva_colum):
-                    hijo = Nodo(nueva_fila, nueva_colum, padre.pasos + 1)
-                    hijos_temp.append((hijo, profundidad + 1))  # Añadir nodo hijo a la lista temporal
-                    padres[(hijo.fila, hijo.colum, hijo.id)] = padre
-                    arbol.add_node((hijo.fila+1, hijo.colum+1, hijo.id))
-                    arbol.add_edge((padre.fila+1, padre.colum+1, padre.id), (hijo.fila+1, hijo.colum+1, hijo.id))
-                    arbol_conexiones.append(((padre.fila+1, padre.colum + 1, padre.id), (hijo.fila + 1, hijo.colum + 1, hijo.id)))
-                    visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio + 1, columna_inicio + 1, 0, [])
+                # Añadir los hijos en orden inverso
+                for hijo in reversed(hijos_temp):
+                    pila.append(hijo)
 
-            # Invertir el orden de los hijos antes de añadirlos a la pila
-            for hijo in reversed(hijos_temp):
-                pila.append(hijo)
+        iteraciones += 1
 
-    print("No se puede llegar a la meta o se alcanzó el límite de profundidad")
+    print("No se encontró la meta o se alcanzó el límite de iteraciones. Retornando el árbol parcial.")
+    return arbol, arbol_conexiones  # Retorna el árbol parcial
+
+# Ejemplo de uso
+if __name__ == "__main__":
+    mapa = [
+        ['.', '.', '.', '.'],
+        ['.', '#', '#', '.'],
+        ['.', '#', '.', '.'],
+        ['.', '.', '.', '#']
+    ]
+    
+    meta = [1, 3]
+    nodo_inicial = Nodo(2, 0, 0)
+    inicio = [(nodo_inicial, 0)]
+    arbolGraph, arbolito = dls_limitProfundidad(mapa, inicio, meta, 3)
+    print("Arbol", arbolGraph, " Arbolito" , arbolito)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 """
 import sys
@@ -184,5 +218,4 @@ if __name__ == "__main__":
     dls_limitProfundidad()
 
 """
-if __name__ == "__main__":
-   dls_limitProfundidad()
+

@@ -1,5 +1,7 @@
+import 'dart:io';
 
 import 'package:agent_mouse/utils/styles.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:agent_mouse/utils/buttonGrid.dart';
 import 'package:http/http.dart' as http;
@@ -83,7 +85,7 @@ class _CentralContainerState extends State<CentralContainer> {
   // Marcador seleccionado: 1 para azul/círculo, 2 para verde/check, 3 para rojo/X
   int selectedMarker = 1;
   String algoritmoSeleccionado = 'limitada_profundidad';
-  late ButtonState buttonState;
+
   bool isLoading = false;
 
   ButtonGrid myButtonGrid =
@@ -228,7 +230,6 @@ class _CentralContainerState extends State<CentralContainer> {
     );
   }
 
-  /*
   Process? _pythonProcess; // Variable para almacenar el proceso del servidor
 
   @override
@@ -239,8 +240,10 @@ class _CentralContainerState extends State<CentralContainer> {
 
   Future<void> _startPythonServer() async {
     try {
-      String pythonScriptPath =
-          'C:/Users/santi/OneDrive/Documentos/Proyecto-ADA-II/Terminal_inteligente/app.py';
+      //Buscar la ruta del archivo para que funcione en cualquier dispositivo(Windows, Linux, Mac) que esta en /Proyecto-IA/API.py
+      const pythonScriptPath =
+          'C:/Users/santi/OneDrive/Documentos/Proyecto-IA/API.py'; // Ruta del script de Python
+
       _pythonProcess = await Process.start('python', [pythonScriptPath]);
       print('Servidor Python iniciado');
 
@@ -276,7 +279,6 @@ class _CentralContainerState extends State<CentralContainer> {
     }
   }
 
-  */
   // Función para ejecutar el algoritmo en el servidor
   Future<void> _runAlgorithm() async {
     setState(() {
@@ -286,10 +288,10 @@ class _CentralContainerState extends State<CentralContainer> {
 
     try {
       print('Ejecutando algoritmo...');
-      print("");
-      print(buttonState.getinicioCoor);
-      print(buttonState.getmetaCoor);
-      print(buttonState.getmapaBotones);
+      print(myButtonGrid.displayMatrix);
+      print(myButtonGrid.blueButtonIndex);
+      print(myButtonGrid.greenButtonIndex);
+
       final response = await http.post(
         Uri.parse('http://127.0.0.1:5000/algorithms'),
         headers: {
@@ -305,9 +307,9 @@ class _CentralContainerState extends State<CentralContainer> {
               .decode(ofertasController.text), // Ofertas en formato correcto
           'algoritmo': algoritmoSeleccionado // Algoritmo seleccionado
           */
-          'Inicio': buttonState.getinicioCoor, // Inicio
-          'Meta': buttonState.getmetaCoor, // Meta
-          'Mapa': buttonState.getmetaCoor, // Bloqueos
+          'Inicio': myButtonGrid.blueButtonIndex, // Inicio
+          'Meta': myButtonGrid.greenButtonIndex, // Meta
+          'Mapa': myButtonGrid.displayMatrix, // Bloqueos
           'Algoritmo': algoritmoSeleccionado // Algoritmo seleccionado
         }),
       );
