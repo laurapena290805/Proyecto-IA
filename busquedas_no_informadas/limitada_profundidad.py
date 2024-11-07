@@ -11,7 +11,7 @@ from Arbol.graficar_arbol import visualizar_arbol_jerarquico
 n, m = 0, 0  # Límites del mapa (filas, columnas)
 fila_inicio, columna_inicio = 0, 0  
 fila_final, columna_final = 0, 0  
-profundidad_maxima = 2 # Límite de profundidad
+profundidad_maxima = 8 # Límite de profundidad
 mapa = []
 visitado = [[False for _ in range(105)] for _ in range(105)]  # Matriz para los nodos visitados
 padres = {}  # Diccionario para registrar el árbol de búsqueda
@@ -97,7 +97,9 @@ if __name__ == "__main__":
     meta = [1, 3]
     nodo_inicial = Nodo(2, 0, 0)
     pila_inicial = [(nodo_inicial, 0)]
-    arbol_resultante, nodos_sin_explorar = dls_limitProfundidad(mapa, pila_inicial, meta, 4)
+    iteraciones_max = 4
+    
+    arbol_resultante, nodos_sin_explorar = dls_limitProfundidad(mapa, pila_inicial, meta, iteraciones_max)
 
     print("Nodos explorados:", arbol_resultante.nodes)
     print("Nodos sin explorar:", nodos_sin_explorar)
