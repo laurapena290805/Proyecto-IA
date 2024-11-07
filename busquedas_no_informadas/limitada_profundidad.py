@@ -11,7 +11,7 @@ from Arbol.graficar_arbol import visualizar_arbol_jerarquico
 n, m = 0, 0  # Límites del mapa (filas, columnas)
 fila_inicio, columna_inicio = 0, 0  
 fila_final, columna_final = 0, 0  
-profundidad_maxima = 10 # Límite de profundidad
+profundidad_maxima = 2 # Límite de profundidad
 mapa = []
 visitado = [[False for _ in range(105)] for _ in range(105)]  # Matriz para los nodos visitados
 padres = {}  # Diccionario para registrar el árbol de búsqueda
@@ -38,26 +38,27 @@ def reconstruir_camino(nodo):
     camino.reverse()
     return camino
 
-def dls_limitProfundidad(mapita, inicio, meta, iteraciones_max):
-    extraer_datos(mapita, [inicio[0][0].fila, inicio[0][0].colum], meta)
+def dls_limitProfundidad(mapita, pila_inicial, meta, iteraciones_max):
+    extraer_datos(mapita, [pila_inicial[0][0].fila, pila_inicial[0][0].colum], meta)
 
-    pila = inicio
+    pila = pila_inicial
+    profundidad = pila[0][1]  # Profundidad del nodo inicial
     iteraciones = 0
 
-    while pila and iteraciones < iteraciones_max:
-        print("Pila" , pila)
+    while pila and iteraciones < iteraciones_max and profundidad < profundidad_maxima:
+        print("\nIteración", iteraciones)
         padre, profundidad = pila.pop()  # Sacar el nodo y su profundidad
-        print("Padre", padre, "Profundidad", profundidad)
-        
 
         if padre.fila == fila_final and padre.colum == columna_final:
             print("Pasos para llegar a la meta:", padre.pasos)
             caminito = reconstruir_camino(padre)
             print("Camino:", caminito)
             visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio + 1, columna_inicio + 1, 0, caminito)
-            return
+            return arbol, []  # Devuelve el árbol completo y una pila vacía, ya que no quedan nodos pendientes
 
         if profundidad < profundidad_maxima:
+            print("\nIteración", iteraciones + 1)
+
             if not visitado[padre.fila][padre.colum]:  
                 visitado[padre.fila][padre.colum] = True  
                 hijos_temp = []  # Lista temporal para almacenar los hijos
@@ -81,8 +82,8 @@ def dls_limitProfundidad(mapita, inicio, meta, iteraciones_max):
 
         iteraciones += 1
 
-    print("No se encontró la meta o se alcanzó el límite de iteraciones. Retornando el árbol parcial.")
-    return arbol, arbol_conexiones  # Retorna el árbol parcial
+    print("No se encontró la meta o se alcanzó el límite de iteraciones. Retornando el árbol parcial y los nodos sin explorar.")
+    return arbol, pila  # Retorna el árbol parcial y los nodos sin explorar en la pila
 
 # Ejemplo de uso
 if __name__ == "__main__":
@@ -95,9 +96,11 @@ if __name__ == "__main__":
     
     meta = [1, 3]
     nodo_inicial = Nodo(2, 0, 0)
-    inicio = [(nodo_inicial, 0)]
-    arbolGraph, arbolito = dls_limitProfundidad(mapa, inicio, meta, 3)
-    print("Arbol", arbolGraph, " Arbolito" , arbolito)
+    pila_inicial = [(nodo_inicial, 0)]
+    arbol_resultante, nodos_sin_explorar = dls_limitProfundidad(mapa, pila_inicial, meta, 4)
+
+    print("Nodos explorados:", arbol_resultante.nodes)
+    print("Nodos sin explorar:", nodos_sin_explorar)
 
 
 
