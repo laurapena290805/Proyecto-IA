@@ -31,6 +31,11 @@ def bfs(tablero, lista_nodos_iniciales, meta, maximo_iteraciones):
 
     while cola:
         nodo_actual = cola.popleft()
+        
+        if nodo_actual.profundidad == maximo_iteraciones:
+            cola.insert(0, nodo_actual)
+            return (False,  list(cola))
+
         fila, columna = nodo_actual.fila, nodo_actual.columna
 
         if nodo_actual.fila == fila_final and nodo_actual.columna == columna_final:
@@ -49,6 +54,9 @@ def bfs(tablero, lista_nodos_iniciales, meta, maximo_iteraciones):
                 nuevo_nodo = Nodo(nueva_fila, nueva_columna, nodo_actual.pasos + 1, nodo_actual)
                 cola.append(nuevo_nodo)
                 #arbol_conexiones.append(((nodo_actual.fila, nodo_actual.columna, nodo_actual.id), (nuevo_nodo.fila, nuevo_nodo.columna, nuevo_nodo.id)))
+
+        # guardo sus hijos el nodo actual
+
 
     print("No se puede llegar a la meta")        
     return None

@@ -7,7 +7,7 @@ from clase_nodo.class_nodo import Nodo
 
 
 
-lista_algoritmos = [bfs, ucs, dfs_izquierda_derecha, dls_limitProfundidad, dfs_por_nivel]
+lista_algoritmos = [bfs, dfs_izquierda_derecha, ucs, dls_limitProfundidad, dfs_por_nivel]
 
 
 tablero = [
@@ -18,11 +18,20 @@ tablero = [
 ]
 
 meta = (1, 3)
+inicio = (2, 0)
 nodo_inicial = Nodo(2, 0, 0, None)
 
+lista_inicial = [nodo_inicial]
 
+for i in range(2):
+    resultado = lista_algoritmos[i](tablero, lista_inicial, meta, 3)
 
+    if resultado is None:
+        print("No se puede llegar a la meta")
+        break
+    if resultado[0]:
+        print("Pasos para llegar a la meta:", resultado[1])
+        break
 
-#lista_algoritmos[2](tablero, [nodo_inicial], meta, 3)
-lista_algoritmos[0](tablero, [nodo_inicial], meta, 3)
+    lista_inicial = resultado[1]
 

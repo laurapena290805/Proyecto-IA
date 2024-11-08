@@ -7,6 +7,7 @@ class Nodo:
         self.columna = columna
         self.pasos = pasos
         self.padre = padre
+        self.profundidad = 0 if padre is None else padre.profundidad + 1
         self.id = nodo_id  # Asignar un ID único al nodo
         nodo_id += 1  # Incrementar el ID para el próximo nodo
 
