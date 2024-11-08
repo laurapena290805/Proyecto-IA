@@ -1,7 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from clase_nodo.class_nodo import Nodo
-from Arbol.graficar_arbol import visualizar_arbol_jerarquico
 
 n, m = 0, 0  # Límites del mapa (filas, columnas)
 fila_inicio, columna_inicio = 0, 0  
