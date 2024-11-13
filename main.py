@@ -1,5 +1,8 @@
 from busquedas_no_informadas.Amplitud import  bfs
 from busquedas_no_informadas.Profundidad import  dfs_izquierda_derecha
+from busquedas_no_informadas.costoUniforme import ucs
+from busquedas_no_informadas.Avara import busqueda_avara
+from busquedas_no_informadas.limitada_profundidad import dls_limitProfundidad
 
 
 from Arbol.graficar_arbol import GraficarArbol
@@ -7,7 +10,7 @@ from clase_nodo.class_nodo import Nodo
 
 
 visitado = [[False for _ in range(105)] for _ in range(105)]  # Matriz de visitados
-lista_algoritmos = [bfs, dfs_izquierda_derecha]
+lista_algoritmos = [busqueda_avara] # [bfs, dfs_izquierda_derecha, busqueda_avara, ucs, dls_limitProfundidad]
 
 
 tablero = [

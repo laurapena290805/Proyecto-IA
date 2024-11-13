@@ -1,6 +1,4 @@
-import networkx as nx
-import matplotlib.pyplot as plt
-from clase_nodo.class_nodo import Nodo 
+from clase_nodo.class_nodo import Nodo, calcular_heuristica 
 
 def es_valido(fila, colum, mapa):
     n, m = len(mapa), len(mapa[0])
@@ -50,10 +48,12 @@ def dfs_izquierda_derecha(tablero, lista_nodos_iniciales, meta, maximo_iteracion
             nueva_colum = nodo_actual.columna + movimiento[1]
 
             if es_valido(nueva_fila, nueva_colum, tablero) and tablero[nueva_fila][nueva_colum] != '#' and not visitado[nueva_fila][nueva_colum]:
-                hijo = Nodo(nueva_fila, nueva_colum, nodo_actual.pasos + 1, nodo_actual) 
-                hijos_temp.append(hijo)  # Agregar a la lista temporal
+                heuristica = calcular_heuristica(nueva_fila, nueva_colum, fila_final, columna_final)
+                nuevo_nodo = Nodo(nueva_fila, nueva_colum, nodo_actual.costo + 1, heuristica, nodo_actual.pasos + 1, nodo_actual)
+                
+                hijos_temp.append(nuevo_nodo) 
                 visitado[nueva_fila][nueva_colum] = True
-                graph.graficar_arbol(hijo)
+                graph.graficar_arbol(nuevo_nodo)
                
              
             hijos_temp.reverse()

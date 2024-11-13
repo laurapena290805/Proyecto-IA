@@ -1,10 +1,8 @@
 from collections import deque
 import networkx as nx
 import matplotlib.pyplot as plt
-from clase_nodo.class_nodo import Nodo
+from clase_nodo.class_nodo import Nodo, calcular_heuristica
 
-
-#arbol = nx.DiGraph()  # Grafo dirigido para representar el árbol de búsquedavisualizar_arbol_jerarquico
 arbol_conexiones = []  # Lista para almacenar las conexiones del árbol
 
 
@@ -42,21 +40,17 @@ def bfs(tablero, lista_nodos_iniciales, meta, maximo_iteraciones, visitado, grap
         fila, columna = nodo_actual.fila, nodo_actual.columna
 
         if nodo_actual.fila == fila_final and nodo_actual.columna == columna_final:
-            print("Pasos para llegar a la meta Amplitud:", nodo_actual.pasos)
-            print("Costo para llegar a la meta Amplitud:", nodo_actual.pasos)
-            # Reconstruir el camino desde la meta hasta el inicio
             camino = reconstruir_camino(nodo_actual)
-            print("Camino encontrado Amplitud:", camino)
             return (True, camino)
         
         for df, dc in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
             nueva_fila, nueva_columna = fila + df, columna + dc
             
             if es_valido(nueva_fila, nueva_columna, tablero) and not visitado[nueva_fila][nueva_columna]:
-                nuevo_nodo = Nodo(nueva_fila, nueva_columna, nodo_actual.pasos + 1, nodo_actual)
+                heuristica = calcular_heuristica(nueva_fila, nueva_columna, fila_final, columna_final)
+                nuevo_nodo = Nodo(nueva_fila, nueva_columna, nodo_actual.costo + 1, heuristica, nodo_actual.pasos + 1, nodo_actual)
                 cola.append(nuevo_nodo)
                 visitado[nueva_fila][nueva_columna] = True
-                #arbol_conexiones.append(((nodo_actual.fila, nodo_actual.columna, nodo_actual.id), (nuevo_nodo.fila, nuevo_nodo.columna, nuevo_nodo.id)))
                 graph.graficar_arbol(nuevo_nodo)
         # guardo sus hijos el nodo actual
 
