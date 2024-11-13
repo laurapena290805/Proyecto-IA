@@ -31,9 +31,9 @@ def dfs_izquierda_derecha(tablero, lista_nodos_iniciales, meta, maximo_iteracion
 
         #  Por hacer: Verificar si ya llegue al limite de iteraciones y devolver la cola con los nodos restantes
         #Ejemplo:
-        #if nodo_actual.profundidad == maximo_iteraciones:
-        #    pila.append(nodo_actual)
-        #    return (False, list(pila))
+        if nodo_actual.profundidad == maximo_iteraciones:
+            pila.insert(0, nodo_actual)
+            return (False,  pila)
 
      
         # Si es la coordenada final, hemos terminado

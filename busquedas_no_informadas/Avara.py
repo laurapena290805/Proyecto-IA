@@ -29,6 +29,13 @@ def busqueda_avara(tablero, lista_nodos_iniciales, meta, maximo_iteraciones,visi
     while not cola.empty():
         _, nodo_actual = cola.get()
         fila, colum = nodo_actual.fila, nodo_actual.columna
+
+        if nodo_actual.profundidad == maximo_iteraciones:
+            cola.put((_ ,nodo_actual))
+            lista = []
+            for nodo in cola.queue:
+                lista.append(nodo[1])
+            return (False,  lista)
         
 
         if nodo_actual.fila == fila_final and nodo_actual.columna == columna_final:

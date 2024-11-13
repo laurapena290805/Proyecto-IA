@@ -9,8 +9,8 @@ from Arbol.graficar_arbol import GraficarArbol
 from clase_nodo.class_nodo import Nodo
 
 
-visitado = [[False for _ in range(105)] for _ in range(105)]  # Matriz de visitados
-lista_algoritmos = [busqueda_avara] # [bfs, dfs_izquierda_derecha, busqueda_avara, ucs, dls_limitProfundidad]
+visitado = [[False for _ in range(105)] for _ in range(105)]  # Matriz de visitados busqueda_avara, ucs, dls_limitProfundidad
+lista_algoritmos = [busqueda_avara]
 
 
 tablero = [
@@ -27,7 +27,7 @@ graph = GraficarArbol(nodo_inicial)
 lista_inicial = [nodo_inicial]
 maximo_iteraciones = 3
 
-for i in range(2):
+for i in range(len(lista_algoritmos)):
     resultado = lista_algoritmos[i](tablero, lista_inicial, meta, maximo_iteraciones, visitado, graph)
     print("Algoritmo:", lista_algoritmos[i].__name__)
     print("Resultado:", resultado)
@@ -40,5 +40,5 @@ for i in range(2):
         break
 
     lista_inicial = resultado[1]
-    maximo_iteraciones *= 2
+    maximo_iteraciones += maximo_iteraciones
 
