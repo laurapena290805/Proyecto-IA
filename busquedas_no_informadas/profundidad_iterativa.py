@@ -49,6 +49,7 @@ def busqueda_profundidad_iterativa(tablero, lista_nodos_iniciales, meta, maximo_
                         visitado[nueva_fila][nueva_colum] = True
                         graph.graficar_arbol(nuevo_nodo)
                 # Expandir nodos en el orden especificado por invertir_orden
+                hijos_temp.reverse()
                 if invertir_orden:
                     hijos_temp.reverse()  # Invertir para procesar en el orden contrario
                 pila_iterativa.extend(hijos_temp)
