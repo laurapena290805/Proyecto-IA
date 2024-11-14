@@ -89,7 +89,6 @@ def dfs_por_nivel():
             if padre.fila == fila_final and padre.colum == columna_final:
                 caminito = reconstruir_camino(padre)
                 print("Camino completo:", caminito)
-                visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, 0, caminito)
                 return True
 
             # Marcar nodo como visitado
@@ -109,9 +108,7 @@ def dfs_por_nivel():
                         arbol.add_node((hijo.fila, hijo.colum, hijo.id))
                         arbol.add_edge((padre.fila, padre.colum, padre.id), (hijo.fila, hijo.colum, hijo.id))
                         arbol_conexiones.append(((padre.fila, padre.colum, padre.id), (hijo.fila, hijo.colum, hijo.id)))
-                        
-                        # Mostrar visualización del árbol con cada nodo agregado
-                        visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, 0, [])
+                
 
                 # Añadir todos los hijos del nodo actual al siguiente nivel
                 siguiente_nivel.extend(hijos_temp)
