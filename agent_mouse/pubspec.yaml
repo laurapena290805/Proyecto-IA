@@ -38,6 +38,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   fading_edge_scrollview: ^4.1.1
   http: ^1.2.2
+  file_picker: ^5.0.0 # Add the file_picker dependency
   
 
 dev_dependencies:
