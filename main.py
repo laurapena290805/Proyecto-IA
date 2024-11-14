@@ -3,6 +3,7 @@ from busquedas_no_informadas.Profundidad import  dfs_izquierda_derecha
 from busquedas_no_informadas.costoUniforme import ucs
 from busquedas_no_informadas.Avara import busqueda_avara
 from busquedas_no_informadas.limitada_profundidad import dls_limitProfundidad
+from busquedas_no_informadas.profundidad_iterativa import busqueda_profundidad_iterativa
 
 
 from Arbol.graficar_arbol import GraficarArbol
