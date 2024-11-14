@@ -46,19 +46,20 @@ def busqueda_profundidad_iterativa(tablero, lista_nodos_iniciales, meta, maximo_
                     nueva_fila = nodo_actual.fila + movimiento[0]
                     nueva_colum = nodo_actual.columna + movimiento[1]
 
-                    if es_valido(nueva_fila, nueva_colum):
-                        hijo = Nodo(nueva_fila, nueva_colum, padre.pasos + 1)
-                        hijos_temp.append(hijo)
-                        padres[(hijo.fila, hijo.colum, hijo.id)] = padre
-                        arbol.add_node((hijo.fila, hijo.colum, hijo.id))
-                        arbol.add_edge((padre.fila, padre.colum, padre.id), (hijo.fila, hijo.colum, hijo.id))
-                        arbol_conexiones.append(((padre.fila, padre.colum, padre.id), (hijo.fila, hijo.colum, hijo.id)))
-                        
-                        # Mostrar visualización del árbol con cada nodo agregado
-                        visualizar_arbol_jerarquico(arbol_conexiones, fila_inicio, columna_inicio, 0, [])
-
-                # Añadir todos los hijos del nodo actual al siguiente nivel
-                siguiente_nivel.extend(hijos_temp)
+                    if es_valido(nueva_fila, nueva_colum, tablero) and tablero[nueva_fila][nueva_colum] != '#' and not visitado[nueva_fila][nueva_colum]:
+                        heuristica = calcular_heuristica(nueva_fila, nueva_colum, fila_final, columna_final)
+                        nuevo_nodo = Nodo(nueva_fila, nueva_colum, nodo_actual.costo + 1, heuristica, nodo_actual.pasos + 1, nodo_actual)
+                        hijos_temp.append(nuevo_nodo)
+                        visitado[nueva_fila][nueva_colum] = True
+                        graph.graficar_arbol(nuevo_nodo)
+                # Expandir nodos en el orden especificado por invertir_orden
+                hijos_temp.reverse()
+                if invertir_orden:
+                    hijos_temp.reverse()  # Invertir para procesar en el orden contrario
+                pila_iterativa.extend(hijos_temp)
+            else:
+                # Almacenar nodo en `siguiente_pila` si alcanzó el límite de profundidad
+                siguiente_pila.append(nodo_actual)
 
         # Preparar la pila para la próxima iteración de profundidad
         pila = siguiente_pila[::-1]
