@@ -1,9 +1,10 @@
-
 import 'package:agent_mouse/utils/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:agent_mouse/utils/buttonGrid.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -14,7 +15,6 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Icon(Icons.mouse_outlined),
         centerTitle: true,
-        //delineado del appbar
         shape: const RoundedRectangleBorder(
           side: BorderSide(
             color: Color.fromARGB(41, 0, 0, 0),
@@ -26,7 +26,6 @@ class HomeScreen extends StatelessWidget {
           children: [
             HeaderWidget(),
             CentralContainer(),
-            ListItemsWidget(),
             FooterWidget(),
           ],
         ),
@@ -41,30 +40,25 @@ class HeaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // Espaciado interno
       padding: const EdgeInsets.all(40),
       width: MediaQuery.of(context).size.width,
       color: const Color.fromARGB(255, 255, 255, 255),
-      //Titulo, subtitulo y botón
-      child: Column(
+      child: const Column(
         children: [
-          const Text(
+          Text(
             'Agent Mouse',
             style: AppStyles.titleTextStyle,
           ),
-          //const SizedBox(height: 10),
-          const Text(
+          Text(
             'Buscando el queso',
             style: AppStyles.subtitleTextStyle,
           ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              // Acción al tocar el botón
-            },
-            child: const Text('Botón', style: AppStyles.buttonTextStyle),
+          SizedBox(height: 20),
+          Text(
+            '¡Bienvenido a Agent Mouse! Ayuda al ratón a encontrar el queso en el laberinto. Selecciona el algoritmo que deseas utilizar y presiona el botón de inicio para comenzar la búsqueda.',
+            style: AppStyles.infomationTextStyle,
+            textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 20),
         ],
       ),
     );
@@ -75,221 +69,364 @@ class CentralContainer extends StatefulWidget {
   const CentralContainer({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _CentralContainerState createState() => _CentralContainerState();
 }
 
 class _CentralContainerState extends State<CentralContainer> {
-  // Marcador seleccionado: 1 para azul/círculo, 2 para verde/check, 3 para rojo/X
   int selectedMarker = 1;
   String algoritmoSeleccionado = 'limitada_profundidad';
   late ButtonState buttonState;
   bool isLoading = false;
+  bool isConfigured = false;
+  int rows = 5;
+  int columns = 5;
+  int iterations = 10;
+  int depth = 5;
+  List<List<String>>? matriz;
+  String? fileName;
 
-  ButtonGrid myButtonGrid =
-      const ButtonGrid(rows: 5, columns: 5, selectedMarker: 1);
+  final TextEditingController rowsController = TextEditingController();
+  final TextEditingController columnsController = TextEditingController();
+  final TextEditingController iterationsController = TextEditingController();
+  final TextEditingController depthController = TextEditingController();
+  final TextEditingController salidaController = TextEditingController();
+  final TextEditingController metaController = TextEditingController();
 
-  // Función para cambiar el marcador
   void setMarker(int marker) {
     setState(() {
       selectedMarker = marker;
     });
   }
 
+  void configureGrid() {
+    if (validateInputs()) {
+      setState(() {
+        rows = int.parse(rowsController.text);
+        columns = int.parse(columnsController.text);
+
+        iterations = int.parse(iterationsController.text);
+        depth = int.parse(depthController.text);
+        isConfigured = true;
+      });
+    }
+  }
+
+  bool validateInputs() {
+    if (matriz == null) {
+      if (rowsController.text.isEmpty || columnsController.text.isEmpty) {
+        showErrorDialog('Por favor, complete todos los campos.');
+        return false;
+      }
+    } else {
+      if (salidaController.text.isEmpty || metaController.text.isEmpty) {
+        showErrorDialog('Por favor, complete todos los campos.');
+        return false;
+      }
+      if (!RegExp(r'^\d+,\d+$').hasMatch(salidaController.text) ||
+          !RegExp(r'^\d+,\d+$').hasMatch(metaController.text)) {
+        showErrorDialog('Las coordenadas deben tener el formato x,y.');
+        return false;
+      }
+    }
+    if (iterationsController.text.isEmpty || depthController.text.isEmpty) {
+      showErrorDialog('Por favor, complete todos los campos.');
+      return false;
+    }
+    return true;
+  }
+
+  void showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> loadFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['txt'],
+    );
+
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      List<String> lines = await file.readAsLines();
+      List<List<String>> tempMatriz =
+          lines.map((line) => line.split('')).toList();
+
+      setState(() {
+        rows = tempMatriz.length;
+        columns = tempMatriz[0].length;
+        fileName = result.files.single.name;
+      });
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('¿Deseas usar esta matriz?'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var row in tempMatriz)
+                  Text(row.map((e) => "'$e'").toList().toString()),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    matriz = tempMatriz;
+                  });
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Confirmar'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    //Contenedor que estará divido 2: para dentro de cada uno tenga
     return Container(
-      //Separacion en las esquinas horizontales
       padding: const EdgeInsets.symmetric(horizontal: 50),
       color: const Color.fromARGB(255, 255, 255, 255),
-
       child: Column(
         children: [
           const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                    //Es un cuadrado redondeado que se ajusta al tamaño de la pantalla
-
-                    width: MediaQuery.of(context).size.width *
-                        0.8, // Ancho 80% del ancho de la pantalla
-                    height: MediaQuery.of(context).size.height *
-                        0.6, // Alto 60% del alto de la pantalla
-                    //muestra una imagen en C:\Users\santi\OneDrive\Documentos\Proyecto-IA\arbol.png
-
-                    decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        color: Color.fromARGB(75, 179, 179, 179)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Image.asset(
-                          'lib/assets/arbol.png',
-                          fit: BoxFit.cover,
+          if (!isConfigured)
+            Column(
+              children: [
+                Text(
+                  matriz != null
+                      ? 'Ingrese las coordenadas para la matriz seleccionada'
+                      : 'Configura a tu ratón ingresando los siguientes datos',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                if (matriz == null) ...[
+                  TextField(
+                    controller: rowsController,
+                    decoration: const InputDecoration(
+                      labelText: 'Número de filas (n)',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: columnsController,
+                    decoration: const InputDecoration(
+                      labelText: 'Número de columnas (m)',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ] else ...[
+                  TextField(
+                    controller: salidaController,
+                    decoration: const InputDecoration(
+                      labelText: 'Coordenadas de salida (x,y)',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: metaController,
+                    decoration: const InputDecoration(
+                      labelText: 'Coordenadas de meta (x,y)',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 10),
+                TextField(
+                  controller: iterationsController,
+                  decoration: const InputDecoration(
+                    labelText: 'Número de iteraciones',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: depthController,
+                  decoration: const InputDecoration(
+                    labelText: 'Número de profundidad',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'También puede cargar un archivo',
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton.icon(
+                  onPressed: loadFile,
+                  icon: fileName != null
+                      ? const Icon(Icons.check, color: Colors.green)
+                      : const Icon(Icons.upload_file),
+                  label: Text(fileName ?? 'Cargar archivo .txt'),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: configureGrid,
+                  child: const Text('Continuar'),
+                ),
+              ],
+            ),
+          const SizedBox(height: 20),
+          if (isConfigured)
+            Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          color: Color.fromARGB(75, 179, 179, 179),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.asset(
+                              'lib/assets/arbol.png',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         ),
                       ),
-                    )),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                  child: Container(
-                width: MediaQuery.of(context).size.width *
-                    0.8, // Ancho 80% del ancho de la pantalla
-                height: MediaQuery.of(context).size.height *
-                    0.6, // Alto 60% del alto de la pantalla
-                decoration: const BoxDecoration(
-                    color: Color.fromARGB(75, 179, 179, 179)),
-                child: ButtonGrid(
-                  rows: 4,
-                  columns: 4,
-                  selectedMarker: selectedMarker,
-                ),
-              ) // Llama a ButtonGrid aquí
-                  ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Container(
-              padding: const EdgeInsets.all(40),
-              width: MediaQuery.of(context).size.width,
-              color: const Color.fromARGB(255, 255, 255, 255),
-              //El contenedor tendra 2 botones simetricos, uno desde la izquierda al centro y el otro del centro a la derecha, dejando un espacio en el centro
-              //los botones seran semicuadrados
-              child: Column(children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => setMarker(1),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedMarker == 1
-                            ? Colors.blue // Azul completo
-                            : const Color.fromARGB(
-                                131, 96, 125, 139), // Gris desaturado
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        decoration: const BoxDecoration(
+                          color: Color.fromARGB(75, 179, 179, 179),
+                        ),
+                        child: ButtonGrid(
+                          rows: rows,
+                          columns: columns,
+                          selectedMarker: selectedMarker,
+                        ),
                       ),
-                      child: const Icon(Icons.circle, color: Colors.white),
-                    ),
-                    ElevatedButton(
-                      onPressed: () => setMarker(2),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedMarker == 2
-                            ? Colors.green // Verde completo
-                            : Colors.green[100], // Gris verdoso
-                      ),
-                      child: const Icon(Icons.check, color: Colors.white),
-                    ),
-                    ElevatedButton(
-                      //Boton con un icono de X y una descripción
-                      onPressed: () => setMarker(3),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedMarker == 3
-                            ? Colors.red // Rojo completo
-                            : Colors.red[100], // Gris rojizo
-                      ),
-                      child: const Icon(Icons.close, color: Colors.white),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 5),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                      '    Salida        ',
-                      style: AppStyles.infomationTextStyle,
-                    ),
-                    Text(
-                      'Meta      ',
-                      style: AppStyles.infomationTextStyle,
-                    ),
-                    Text(
-                      'Bloqueos  ',
-                      style: AppStyles.infomationTextStyle,
                     ),
                   ],
                 ),
                 const SizedBox(height: 20),
-                //Boton para iniciar
-                ElevatedButton(
-                  onPressed: () {
-                    // Acción al tocar el botón
-                    _runAlgorithm();
-                  },
-                  child:
-                      const Text('Iniciar', style: AppStyles.buttonTextStyle),
+                Container(
+                  padding: const EdgeInsets.all(40),
+                  width: MediaQuery.of(context).size.width,
+                  color: const Color.fromARGB(255, 255, 255, 255),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () => setMarker(1),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: selectedMarker == 1
+                                  ? Colors.blue
+                                  : const Color.fromARGB(131, 96, 125, 139),
+                            ),
+                            child:
+                                const Icon(Icons.circle, color: Colors.white),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => setMarker(2),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: selectedMarker == 2
+                                  ? Colors.green
+                                  : Colors.green[100],
+                            ),
+                            child: const Icon(Icons.check, color: Colors.white),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => setMarker(3),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: selectedMarker == 3
+                                  ? Colors.red
+                                  : Colors.red[100],
+                            ),
+                            child: const Icon(Icons.close, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            '    Salida        ',
+                            style: AppStyles.infomationTextStyle,
+                          ),
+                          Text(
+                            'Meta      ',
+                            style: AppStyles.infomationTextStyle,
+                          ),
+                          Text(
+                            'Bloqueos  ',
+                            style: AppStyles.infomationTextStyle,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _runAlgorithm,
+                        child: const Text('Iniciar',
+                            style: AppStyles.buttonTextStyle),
+                      ),
+                    ],
+                  ),
                 ),
-              ])),
-          const SizedBox(height: 20),
+                const SizedBox(height: 20),
+              ],
+            ),
         ],
       ),
     );
   }
 
-  /*
-  Process? _pythonProcess; // Variable para almacenar el proceso del servidor
-
-  @override
-  void initState() {
-    super.initState();
-    _startPythonServer();
-  }
-
-  Future<void> _startPythonServer() async {
-    try {
-      String pythonScriptPath =
-          'C:/Users/santi/OneDrive/Documentos/Proyecto-ADA-II/Terminal_inteligente/app.py';
-      _pythonProcess = await Process.start('python', [pythonScriptPath]);
-      print('Servidor Python iniciado');
-
-      // Escuchar la salida del proceso para depurar
-      _pythonProcess!.stdout.transform(utf8.decoder).listen((data) {
-        print(data);
-      });
-    } catch (e) {
-      print('Error al iniciar el servidor: $e;;');
-    }
-  }
-
-  @override
-  void dispose() {
-    if (kDebugMode) {
-      print('dispose() llamado');
-    } // Para verificar si se llama
-    _stopPythonServer();
-    super.dispose();
-  }
-
-  Future<void> _stopPythonServer() async {
-    if (_pythonProcess != null) {
-      // Intenta cerrar el proceso
-      _pythonProcess!.kill();
-
-      // Espera un poco para asegurarte de que el proceso se cierre
-      await Future.delayed(
-          const Duration(seconds: 1)); // Ajusta el tiempo si es necesario
-
-      // Verifica si el proceso sigue corriendo
-      print('Servidor cerrado.');
-    }
-  }
-
-  */
-  // Función para ejecutar el algoritmo en el servidor
   Future<void> _runAlgorithm() async {
     setState(() {
       isLoading = true;
-      //resultado = ''; // Reiniciar resultado
     });
 
     try {
-      print('Ejecutando algoritmo...');
-      print("");
-      print(buttonState.getinicioCoor);
-      print(buttonState.getmetaCoor);
-      print(buttonState.getmapaBotones);
       final response = await http.post(
         Uri.parse('http://127.0.0.1:5000/algorithms'),
         headers: {
@@ -297,68 +434,32 @@ class _CentralContainerState extends State<CentralContainer> {
           'Access-Control-Allow-Origin': '*',
         },
         body: json.encode({
-          /*
-          'A': int.parse(aController.text),
-          'B': int.parse(bController.text),
-          'n': int.parse(nController.text),
-          'ofertas': json
-              .decode(ofertasController.text), // Ofertas en formato correcto
-          'algoritmo': algoritmoSeleccionado // Algoritmo seleccionado
-          */
-          'Inicio': buttonState.getinicioCoor, // Inicio
-          'Meta': buttonState.getmetaCoor, // Meta
-          'Mapa': buttonState.getmetaCoor, // Bloqueos
-          'Algoritmo': algoritmoSeleccionado // Algoritmo seleccionado
+          'Inicio': buttonState.getinicioCoor,
+          'Meta': buttonState.getmetaCoor,
+          'Mapa': buttonState.getmetaCoor,
+          'Algoritmo': algoritmoSeleccionado,
         }),
       );
-      print(response.statusCode);
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
           print("Si se pudo ${data['confirmacion']} ");
-          //resultado =
-          //    'La mejor asignación es: ${data['resultado']}\nValor Final: ${data['asignacion']}';
         });
       } else {
         setState(() {
-          //resultado = 'Error en la ejecución';
+          // Handle error
         });
       }
     } catch (e) {
       setState(() {
-        //resultado = 'Error: $e';
+        // Handle error
       });
     } finally {
       setState(() {
-        //isLoading = false; // Termina la carga
+        isLoading = false;
       });
     }
-  }
-}
-
-void loaderImage() {
-  // Cargar la imagen
-}
-
-class ListItemsWidget extends StatelessWidget {
-  const ListItemsWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics:
-          const NeverScrollableScrollPhysics(), // Para permitir el desplazamiento del SingleChildScrollView
-      itemCount: 20, // Número de elementos en la lista
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text('Elemento $index'),
-          onTap: () {
-            // Acción al tocar el elemento
-          },
-        );
-      },
-    );
   }
 }
 
