@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-from busquedas_no_informadas.Profundidad import dfs_izquierda_derecha
+from busquedas_no_informadas.Profundidad import busqueda_Profundidad
 from busquedas_no_informadas.Amplitud import bfs
 
 app = Flask(__name__, static_folder='web', static_url_path='/')
@@ -25,7 +25,7 @@ def run_algorithm():
 
     
     if algoritmo == 'limitada_profundidad':
-        dfs_izquierda_derecha(mapa, inicio, meta)
+        busqueda_Profundidad(mapa, inicio, meta)
         loadImagen = True
 
     else:

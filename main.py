@@ -1,8 +1,8 @@
-from busquedas_no_informadas.Amplitud import  bfs
-from busquedas_no_informadas.Profundidad import  dfs_izquierda_derecha
-from busquedas_no_informadas.costoUniforme import ucs
+from busquedas_no_informadas.Amplitud import  busqueda_Amplitud
+from busquedas_no_informadas.Profundidad import  busqueda_Profundidad
+from busquedas_no_informadas.costoUniforme import busqueda_Costouniforme
 from busquedas_no_informadas.Avara import busqueda_avara
-from busquedas_no_informadas.limitada_profundidad import dls_limitProfundidad
+from busquedas_no_informadas.limitada_profundidad import busqueda_Limitaprofundidad
 from busquedas_no_informadas.profundidad_iterativa import busqueda_profundidad_iterativa
 
 
@@ -11,7 +11,7 @@ from clase_nodo.class_nodo import Nodo
 
 
 visitado = {}
-lista_algoritmos = [dfs_izquierda_derecha, busqueda_avara, ucs, bfs, dls_limitProfundidad]
+lista_algoritmos = [busqueda_Amplitud, busqueda_Profundidad]
 
 
 tablero = [

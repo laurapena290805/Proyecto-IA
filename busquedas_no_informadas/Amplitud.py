@@ -3,8 +3,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from clase_nodo.class_nodo import Nodo, calcular_heuristica
 
-arbol_conexiones = []  # Lista para almacenar las conexiones del árbol
-
 
 def es_valido(fila, columna, tablero):
     n, m = len(tablero), len(tablero[0])
@@ -23,7 +21,7 @@ def inicializar_estrucuras_de_datos(lista_nodos_iniciales, visitado):
         visitado[(nodo.fila, nodo.columna)] = True
     return lista_nodos_iniciales
 
-def bfs(tablero, lista_nodos_iniciales, meta, maximo_iteraciones, visitado, graph):
+def busqueda_Amplitud(tablero, lista_nodos_iniciales, meta, maximo_iteraciones, visitado, graph):
     fila_final, columna_final = meta
  
     cola = deque(inicializar_estrucuras_de_datos(lista_nodos_iniciales, visitado))
@@ -34,7 +32,6 @@ def bfs(tablero, lista_nodos_iniciales, meta, maximo_iteraciones, visitado, grap
         
         if nodo_actual.profundidad == maximo_iteraciones:
             cola.insert(0, nodo_actual)
-            print(cola)
             return (False,  list(cola))
 
         fila, columna = nodo_actual.fila, nodo_actual.columna
@@ -48,7 +45,7 @@ def bfs(tablero, lista_nodos_iniciales, meta, maximo_iteraciones, visitado, grap
             
             if es_valido(nueva_fila, nueva_columna, tablero) and not visitado.get((nueva_fila, nueva_columna), False):
                 heuristica = calcular_heuristica(nueva_fila, nueva_columna, fila_final, columna_final)
-                nuevo_nodo = Nodo(nueva_fila, nueva_columna, nodo_actual.costo + 1, heuristica, nodo_actual.pasos + 1, nodo_actual)
+                nuevo_nodo = Nodo(nueva_fila, nueva_columna, nodo_actual.costo + 1, heuristica, nodo_actual)
                 cola.append(nuevo_nodo)
                 visitado[(nueva_fila, nueva_columna)] = True
                 graph.graficar_arbol(nuevo_nodo)
@@ -60,5 +57,5 @@ def bfs(tablero, lista_nodos_iniciales, meta, maximo_iteraciones, visitado, grap
     
 
 if __name__ == "__main__":
-    bfs()  # Ejecutar BFS y obtener el camino
+    busqueda_Amplitud()  # Ejecutar BFS y obtener el camino
   

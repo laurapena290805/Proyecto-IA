@@ -20,7 +20,7 @@ def inicializar_estrucuras_de_datos(lista_nodos_iniciales, visitado):
         cola.put((nodo.costo, nodo))
     return cola
 
-def ucs(tablero, lista_nodos_iniciales, meta, maximo_iteraciones,visitado, graph):
+def busqueda_Costouniforme(tablero, lista_nodos_iniciales, meta, maximo_iteraciones,visitado, graph):
 
     fila_final, columna_final = meta
     cola = inicializar_estrucuras_de_datos(lista_nodos_iniciales, visitado)
@@ -49,7 +49,7 @@ def ucs(tablero, lista_nodos_iniciales, meta, maximo_iteraciones,visitado, graph
             
             if es_valido(nueva_fila, nueva_colum, tablero) and tablero[nueva_fila][nueva_colum] != '#' and not visitado.get((nueva_fila, nueva_colum), False):
                 heuristica = calcular_heuristica(nueva_fila, nueva_colum, fila_final, columna_final)
-                nuevo_nodo = Nodo(nueva_fila, nueva_colum, nodo_actual.costo + 1, heuristica,  nodo_actual.pasos + 1, nodo_actual)
+                nuevo_nodo = Nodo(nueva_fila, nueva_colum, nodo_actual.costo + 1, heuristica, nodo_actual)
              
                 visitado[(nueva_fila, nueva_colum)] = True
                 cola.put((nuevo_nodo.costo, nuevo_nodo))
@@ -59,4 +59,4 @@ def ucs(tablero, lista_nodos_iniciales, meta, maximo_iteraciones,visitado, graph
     return None
 
 if __name__ == "__main__":
-    ucs()  # Ejecutar UCS y obtener el camino
+    busqueda_Costouniforme()  # Ejecutar busqueda_Costouniforme y obtener el camino
