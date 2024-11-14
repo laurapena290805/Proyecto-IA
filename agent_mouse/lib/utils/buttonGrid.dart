@@ -14,8 +14,7 @@ class ButtonGrid extends StatefulWidget {
   });
 
   @override
-  // ignore: library_private_types_in_public_api
-  _ButtonGridState createState() => _ButtonGridState();
+  State<ButtonGrid> createState() => _ButtonGridState();
 }
 
 class _ButtonGridState extends State<ButtonGrid> {
@@ -131,8 +130,7 @@ class _ButtonGridState extends State<ButtonGrid> {
 }
 
 class ButtonState {
-  List<List<String>>
-      mapaBotones; // Matriz de caracteres para la visualización
+  List<List<String>> mapaBotones; // Matriz de caracteres para la visualización
   int? inicioCoor;
   int? metaCoor;
 
