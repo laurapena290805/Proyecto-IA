@@ -2,6 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 
+
 class GraficarArbol:
 
     def __init__(self, root):
@@ -14,6 +15,9 @@ class GraficarArbol:
         self.pos = self.hierarchy_pos(self.graph, self.root)
         nx.draw(self.graph, self.pos, with_labels=True, node_size=500, node_color="orange", font_size=10)
         plt.savefig("arbol.png")
+        # Implementar sleep para que se pueda ver el arbol
+        # actualizar la imagen en cada iteracion
+
         plt.show()
 
     def hierarchy_pos(self, G, root=None, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5):

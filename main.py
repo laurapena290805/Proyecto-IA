@@ -1,8 +1,8 @@
-from busquedas_no_informadas.Amplitud import  bfs
-from busquedas_no_informadas.Profundidad import  dfs_izquierda_derecha
-from busquedas_no_informadas.costoUniforme import ucs
+from busquedas_no_informadas.Amplitud import  busqueda_Amplitud
+from busquedas_no_informadas.Profundidad import  busqueda_Profundidad
+from busquedas_no_informadas.costoUniforme import busqueda_Costouniforme
 from busquedas_no_informadas.Avara import busqueda_avara
-from busquedas_no_informadas.limitada_profundidad import dls_limitProfundidad
+from busquedas_no_informadas.limitada_profundidad import busqueda_Limitaprofundidad
 from busquedas_no_informadas.profundidad_iterativa import busqueda_profundidad_iterativa
 
 
@@ -10,8 +10,8 @@ from Arbol.graficar_arbol import GraficarArbol
 from clase_nodo.class_nodo import Nodo
 
 
-visitado = [[False for _ in range(105)] for _ in range(105)]  # Matriz de visitados busqueda_avara, ucs, dls_limitProfundidad
-lista_algoritmos = [busqueda_avara]
+visitado = {}
+lista_algoritmos = [busqueda_Amplitud, busqueda_Profundidad]
 
 
 tablero = [
@@ -23,10 +23,10 @@ tablero = [
 
 meta = (1, 3)
 inicio = (2, 0)
-nodo_inicial = Nodo(2, 0, 0, None)
+nodo_inicial = Nodo(2, 0, 0, 0, None)
 graph = GraficarArbol(nodo_inicial)
 lista_inicial = [nodo_inicial]
-maximo_iteraciones = 3
+maximo_iteraciones = 2
 
 for i in range(len(lista_algoritmos)):
     resultado = lista_algoritmos[i](tablero, lista_inicial, meta, maximo_iteraciones, visitado, graph)
