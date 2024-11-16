@@ -69,6 +69,7 @@ class CentralContainer extends StatefulWidget {
   const CentralContainer({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CentralContainerState createState() => _CentralContainerState();
 }
 
@@ -78,12 +79,13 @@ class _CentralContainerState extends State<CentralContainer> {
   late ButtonState buttonState;
   bool isLoading = false;
   bool isConfigured = false;
-  int rows = 5;
-  int columns = 5;
-  int iterations = 10;
-  int depth = 5;
+  int rows = 0;
+  int columns = 0;
+  int iterations = 0;
+  int depth = 0;
   List<List<String>>? matriz;
   String? fileName;
+  String algoritmoActual = '';
 
   final TextEditingController rowsController = TextEditingController();
   final TextEditingController columnsController = TextEditingController();
@@ -101,8 +103,11 @@ class _CentralContainerState extends State<CentralContainer> {
   void configureGrid() {
     if (validateInputs()) {
       setState(() {
-        rows = int.parse(rowsController.text);
-        columns = int.parse(columnsController.text);
+        if (rowsController.text.isNotEmpty &&
+            columnsController.text.isNotEmpty) {
+          rows = int.parse(rowsController.text);
+          columns = int.parse(columnsController.text);
+        }
 
         iterations = int.parse(iterationsController.text);
         depth = int.parse(depthController.text);
@@ -216,6 +221,8 @@ class _CentralContainerState extends State<CentralContainer> {
       child: Column(
         children: [
           const SizedBox(height: 20),
+
+          //CONTENIDO DE CONFIGURACION
           if (!isConfigured)
             Column(
               children: [
@@ -305,6 +312,8 @@ class _CentralContainerState extends State<CentralContainer> {
             ),
           const SizedBox(height: 20),
           if (isConfigured)
+
+            //CONTENIDO DE EJECUCION
             Column(
               children: [
                 Row(
@@ -410,6 +419,11 @@ class _CentralContainerState extends State<CentralContainer> {
                         child: const Text('Iniciar',
                             style: AppStyles.buttonTextStyle),
                       ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Algoritmo actual: $algoritmoActual',
+                        style: AppStyles.infomationTextStyle,
+                      ),
                     ],
                   ),
                 ),
@@ -434,15 +448,21 @@ class _CentralContainerState extends State<CentralContainer> {
           'Access-Control-Allow-Origin': '*',
         },
         body: json.encode({
-          'Inicio': buttonState.getinicioCoor,
-          'Meta': buttonState.getmetaCoor,
-          'Mapa': buttonState.getmetaCoor,
-          'Algoritmo': algoritmoSeleccionado,
+          'Inicio': [0, 2], // Ejemplo de coordenadas de inicio
+          'Meta': [1, 3], // Ejemplo de coordenadas de meta
+          'Mapa': [
+            ['.', '.', '.', '.'],
+            ['.', '#', '#', '.'],
+            ['.', '#', '.', '.'],
+            ['.', '.', '.', '#'],
+          ], // Ejemplo de mapa
+          'MaximoIteraciones': 2,
         }),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print(data);
         setState(() {
           print("Si se pudo ${data['confirmacion']} ");
         });

@@ -39,6 +39,7 @@ dependencies:
   fading_edge_scrollview: ^4.1.1
   http: ^1.2.2
   file_picker: ^5.0.0 # Add the file_picker dependency
+  web_socket_channel: ^2.1.0
   
 
 dev_dependencies:

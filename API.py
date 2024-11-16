@@ -1,19 +1,13 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-
-from busquedas_no_informadas.Profundidad import busqueda_Profundidad
-from busquedas_no_informadas.Amplitud import bfs
+from main import ejecutar_busquedas
 
 app = Flask(__name__, static_folder='web', static_url_path='/')
-
-
 CORS(app)
 
 @app.route('/')
 def index():
-    return  app.send_static_file('index.html')
-
-
+    return app.send_static_file('index.html')
 
 @app.route('/algorithms', methods=['POST'])
 def run_algorithm():
@@ -21,20 +15,10 @@ def run_algorithm():
     inicio = data['Inicio']
     meta = data['Meta']
     mapa = data['Mapa']
-    algoritmo = data['Algoritmo']
+    maximo_iteraciones = data['MaximoIteraciones']
 
-    
-    if algoritmo == 'limitada_profundidad':
-        busqueda_Profundidad(mapa, inicio, meta)
-        loadImagen = True
-
-    else:
-        return jsonify({'error': 'Algoritmo no válido'}), 400 
-    return jsonify({'confirmacion': loadImagen})
-   
-
-
-
+    resultados = ejecutar_busquedas(mapa, meta, inicio, maximo_iteraciones)
+    return jsonify(resultados)
 
 if __name__ == '__main__':
     app.run(debug=True)
