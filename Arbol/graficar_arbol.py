@@ -15,14 +15,16 @@ class GraficarArbol:
         self.graph.add_edge((nodo.padre.fila, nodo.padre.columna, nodo.padre.id), (nodo.fila, nodo.columna, nodo.id))
         self.pos = self.hierarchy_pos(self.graph, self.root)
         nx.draw(self.graph, self.pos, with_labels=True, node_size=500, node_color="orange", font_size=10)
-        save_path = os.path.join(os.path.dirname(__file__), '..', 'agent_mouse', 'lib', 'assets', 'arbol.png')
-        plt.savefig(save_path)
-        plt.clf()
+        plt.savefig("arbol.png")
+        # Implementar sleep para que se pueda ver el arbol
+        # actualizar la imagen en cada iteracion
+
+        plt.show()
         
         # Implementar sleep para que se pueda ver el arbol
         # actualizar la imagen en cada iteracion
 
-        #plt.show()
+        plt.show()
 
     def hierarchy_pos(self, G, root=None, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5):
         pos = self._hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter, parsed=set())

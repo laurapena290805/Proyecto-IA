@@ -94,6 +94,281 @@ class _CentralContainerState extends State<CentralContainer> {
   final TextEditingController salidaController = TextEditingController();
   final TextEditingController metaController = TextEditingController();
 
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 50),
+      color: const Color.fromARGB(255, 255, 255, 255),
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+
+          //CONTENIDO DE CONFIGURACION
+          if (!isConfigured)
+            Column(
+              children: [
+                Text(
+                  matriz != null
+                      ? 'Ingrese las coordenadas para la matriz seleccionada'
+                      : 'Configura a tu ratón ingresando los siguientes datos',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                if (matriz == null) ...[
+                  TextField(
+                    controller: rowsController,
+                    decoration: const InputDecoration(
+                      labelText: 'Número de filas (n)',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: columnsController,
+                    decoration: const InputDecoration(
+                      labelText: 'Número de columnas (m)',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ] else ...[
+                  TextField(
+                    controller: salidaController,
+                    decoration: const InputDecoration(
+                      labelText: 'Coordenadas de salida (x,y)',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: metaController,
+                    decoration: const InputDecoration(
+                      labelText: 'Coordenadas de meta (x,y)',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 10),
+                TextField(
+                  controller: iterationsController,
+                  decoration: const InputDecoration(
+                    labelText: 'Número de iteraciones',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: depthController,
+                  decoration: const InputDecoration(
+                    labelText: 'Número de profundidad',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'También puede cargar un archivo',
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton.icon(
+                  onPressed: loadFile,
+                  icon: fileName != null
+                      ? const Icon(Icons.check, color: Colors.green)
+                      : const Icon(Icons.upload_file),
+                  label: Text(fileName ?? 'Cargar archivo .txt'),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: configureGrid,
+                  child: const Text('Continuar'),
+                ),
+              ],
+            ),
+
+          const SizedBox(height: 20),
+
+          //CONTENIDO DE EJECUCION
+          if (isConfigured)
+            Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          color: Color.fromARGB(75, 179, 179, 179),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: matriz != null
+                                ? Image.asset(
+                                    'lib/assets/arbol.png',
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.asset(
+                                    'lib/assets/arbol.png',
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+
+                    //CONTENIDO DE BOTONES
+
+                    Expanded(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        decoration: const BoxDecoration(
+                          color: Color.fromARGB(75, 179, 179, 179),
+                        ),
+                        child: ButtonGrid(
+                          rows: rows,
+                          columns: columns,
+                          selectedMarker: selectedMarker,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                //CONTENIDO DE BOTONES DE ACCION Y ALGORITMO
+                Container(
+                  padding: const EdgeInsets.all(40),
+                  width: MediaQuery.of(context).size.width,
+                  color: const Color.fromARGB(255, 255, 255, 255),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () => setMarker(1),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: selectedMarker == 1
+                                  ? Colors.blue
+                                  : const Color.fromARGB(131, 96, 125, 139),
+                            ),
+                            child:
+                                const Icon(Icons.circle, color: Colors.white),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => setMarker(2),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: selectedMarker == 2
+                                  ? Colors.green
+                                  : Colors.green[100],
+                            ),
+                            child: const Icon(Icons.check, color: Colors.white),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => setMarker(3),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: selectedMarker == 3
+                                  ? Colors.red
+                                  : Colors.red[100],
+                            ),
+                            child: const Icon(Icons.close, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            '    Salida        ',
+                            style: AppStyles.infomationTextStyle,
+                          ),
+                          Text(
+                            'Meta      ',
+                            style: AppStyles.infomationTextStyle,
+                          ),
+                          Text(
+                            'Bloqueos  ',
+                            style: AppStyles.infomationTextStyle,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _runAlgorithm,
+                        child: const Text('Iniciar',
+                            style: AppStyles.buttonTextStyle),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Algoritmo actual: $algoritmoActual',
+                        style: AppStyles.infomationTextStyle,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _runAlgorithm() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:5000/algorithms'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: json.encode({
+          'Inicio': [0, 2], // Ejemplo de coordenadas de inicio
+          'Meta': [1, 3], // Ejemplo de coordenadas de meta
+          'Mapa': [
+            ['.', '.', '.', '.'],
+            ['.', '#', '#', '.'],
+            ['.', '#', '.', '.'],
+            ['.', '.', '.', '#'],
+          ], // Ejemplo de mapa
+          'MaximoIteraciones': 2,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print("Respuesta del servidor: ${data['confirmacion']}");
+      } else {
+        print("Error en la solicitud: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error durante la conexión HTTP: $e");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   void setMarker(int marker) {
     setState(() {
       selectedMarker = marker;
@@ -212,275 +487,6 @@ class _CentralContainerState extends State<CentralContainer> {
       );
     }
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 50),
-      color: const Color.fromARGB(255, 255, 255, 255),
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-
-          //CONTENIDO DE CONFIGURACION
-          if (!isConfigured)
-            Column(
-              children: [
-                Text(
-                  matriz != null
-                      ? 'Ingrese las coordenadas para la matriz seleccionada'
-                      : 'Configura a tu ratón ingresando los siguientes datos',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                if (matriz == null) ...[
-                  TextField(
-                    controller: rowsController,
-                    decoration: const InputDecoration(
-                      labelText: 'Número de filas (n)',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: columnsController,
-                    decoration: const InputDecoration(
-                      labelText: 'Número de columnas (m)',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ] else ...[
-                  TextField(
-                    controller: salidaController,
-                    decoration: const InputDecoration(
-                      labelText: 'Coordenadas de salida (x,y)',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: metaController,
-                    decoration: const InputDecoration(
-                      labelText: 'Coordenadas de meta (x,y)',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 10),
-                TextField(
-                  controller: iterationsController,
-                  decoration: const InputDecoration(
-                    labelText: 'Número de iteraciones',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: depthController,
-                  decoration: const InputDecoration(
-                    labelText: 'Número de profundidad',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'También puede cargar un archivo',
-                  style: TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton.icon(
-                  onPressed: loadFile,
-                  icon: fileName != null
-                      ? const Icon(Icons.check, color: Colors.green)
-                      : const Icon(Icons.upload_file),
-                  label: Text(fileName ?? 'Cargar archivo .txt'),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: configureGrid,
-                  child: const Text('Continuar'),
-                ),
-              ],
-            ),
-          const SizedBox(height: 20),
-          if (isConfigured)
-
-            //CONTENIDO DE EJECUCION
-            Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        height: MediaQuery.of(context).size.height * 0.6,
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(20)),
-                          color: Color.fromARGB(75, 179, 179, 179),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image.asset(
-                              'lib/assets/arbol.png',
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        height: MediaQuery.of(context).size.height * 0.6,
-                        decoration: const BoxDecoration(
-                          color: Color.fromARGB(75, 179, 179, 179),
-                        ),
-                        child: ButtonGrid(
-                          rows: rows,
-                          columns: columns,
-                          selectedMarker: selectedMarker,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.all(40),
-                  width: MediaQuery.of(context).size.width,
-                  color: const Color.fromARGB(255, 255, 255, 255),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () => setMarker(1),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: selectedMarker == 1
-                                  ? Colors.blue
-                                  : const Color.fromARGB(131, 96, 125, 139),
-                            ),
-                            child:
-                                const Icon(Icons.circle, color: Colors.white),
-                          ),
-                          ElevatedButton(
-                            onPressed: () => setMarker(2),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: selectedMarker == 2
-                                  ? Colors.green
-                                  : Colors.green[100],
-                            ),
-                            child: const Icon(Icons.check, color: Colors.white),
-                          ),
-                          ElevatedButton(
-                            onPressed: () => setMarker(3),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: selectedMarker == 3
-                                  ? Colors.red
-                                  : Colors.red[100],
-                            ),
-                            child: const Icon(Icons.close, color: Colors.white),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text(
-                            '    Salida        ',
-                            style: AppStyles.infomationTextStyle,
-                          ),
-                          Text(
-                            'Meta      ',
-                            style: AppStyles.infomationTextStyle,
-                          ),
-                          Text(
-                            'Bloqueos  ',
-                            style: AppStyles.infomationTextStyle,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: _runAlgorithm,
-                        child: const Text('Iniciar',
-                            style: AppStyles.buttonTextStyle),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Algoritmo actual: $algoritmoActual',
-                        style: AppStyles.infomationTextStyle,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _runAlgorithm() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:5000/algorithms'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: json.encode({
-          'Inicio': [0, 2], // Ejemplo de coordenadas de inicio
-          'Meta': [1, 3], // Ejemplo de coordenadas de meta
-          'Mapa': [
-            ['.', '.', '.', '.'],
-            ['.', '#', '#', '.'],
-            ['.', '#', '.', '.'],
-            ['.', '.', '.', '#'],
-          ], // Ejemplo de mapa
-          'MaximoIteraciones': 2,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        print(data);
-        setState(() {
-          print("Si se pudo ${data['confirmacion']} ");
-        });
-      } else {
-        setState(() {
-          // Handle error
-        });
-      }
-    } catch (e) {
-      setState(() {
-        // Handle error
-      });
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
 }
 
 class FooterWidget extends StatelessWidget {
@@ -489,11 +495,13 @@ class FooterWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      color: Colors.grey,
+      padding: const EdgeInsets.all(20),
+      width: MediaQuery.of(context).size.width,
+      color: const Color.fromARGB(255, 255, 255, 255),
       child: const Text(
-        'Pie de página',
-        style: AppStyles.infomationTextStyle,
+        '© 2023 Agent Mouse. Todos los derechos reservados.',
+        style: TextStyle(fontSize: 14),
+        textAlign: TextAlign.center,
       ),
     );
   }

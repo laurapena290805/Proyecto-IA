@@ -12,7 +12,7 @@ import time
 
 def ejecutar_busquedas(tablero, meta, inicio, maximo_iteraciones):
     visitado = {}
-    lista_algoritmos = [busqueda_Amplitud, busqueda_Profundidad, busqueda_Costouniforme, busqueda_avara, busqueda_Limitaprofundidad, busqueda_profundidad_iterativa]
+    lista_algoritmos = [busqueda_Amplitud, busqueda_Profundidad]
 
     nodo_inicial = Nodo(inicio[0], inicio[1], 0, 0, None)
     graph = GraficarArbol(nodo_inicial)
