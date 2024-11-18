@@ -13,14 +13,11 @@ class Nodo:
         self.heuristica = heuristica
 
 
-
     def __repr__(self):
         return f"({self.fila}, {self.columna}, {self.id})"  # Incluir el ID en la representación
     
     def __lt__(self, other):
         return self.costo < other.costo
-
-    
 
 def calcular_heuristica(x1, y1, x2, y2):
     return  abs(x1 - x2) + abs(y1 - y2)

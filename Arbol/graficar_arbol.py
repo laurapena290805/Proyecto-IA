@@ -39,6 +39,16 @@ class GraficarArbol:
         plt.pause(0.5)
         plt.show(block=False)
 
+    def eliminar_nodos(self, nodos):
+        if nodos == []:
+            return
+        for nodo in nodos:
+            self.graph.remove_node((nodo.fila, nodo.columna, nodo.id))
+        self.pos = self.hierarchy_pos(self.graph, self.root)
+        nx.draw(self.graph, self.pos, with_labels=True, node_size=500, node_color="orange", font_size=10)
+        plt.savefig("arbol.png")
+        plt.show()
+
     def hierarchy_pos(self, G, root=None, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5):
         return self._hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter, parsed=set())
 

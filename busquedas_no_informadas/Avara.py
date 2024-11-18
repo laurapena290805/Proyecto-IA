@@ -13,17 +13,22 @@ def reconstruir_camino(nodo):
     camino.reverse()  # Invertir el camino para mostrar desde el inicio hasta la meta
     return camino
 
-def inicializar_estrucuras_de_datos(lista_nodos_iniciales, visitado):
+def es_mi_abuelo(nodo, x, y):
+    if nodo.padre is None:
+        return False
+    padre = nodo.padre
+    return  padre.fila == x and padre.columna == y
+
+def inicializar_estrucuras_de_datos(lista_nodos_iniciales):
     cola = PriorityQueue()
     for nodo in lista_nodos_iniciales:
-        visitado[(nodo.fila, nodo.columna)] = True
         cola.put((nodo.heuristica, nodo))
     return cola
 
-def busqueda_avara(tablero, lista_nodos_iniciales, meta, maximo_iteraciones,visitado, graph):
+def busqueda_avara(tablero, lista_nodos_iniciales, meta, maximo_iteraciones, graph):
 
     fila_final, columna_final = meta
-    cola = inicializar_estrucuras_de_datos(lista_nodos_iniciales, visitado)
+    cola = inicializar_estrucuras_de_datos(lista_nodos_iniciales)
     
 
     while not cola.empty():
@@ -48,10 +53,9 @@ def busqueda_avara(tablero, lista_nodos_iniciales, meta, maximo_iteraciones,visi
         for df, dc in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
             nueva_fila, nueva_colum = fila + df, colum + dc
             
-            if es_valido(nueva_fila, nueva_colum, tablero) and tablero[nueva_fila][nueva_colum] != '#' and not visitado.get((nueva_fila, nueva_colum), False):
+            if es_valido(nueva_fila, nueva_colum, tablero) and tablero[nueva_fila][nueva_colum] != '#' and not es_mi_abuelo(nodo_actual, nueva_fila, nueva_colum):
                 heuristica = calcular_heuristica(nueva_fila, nueva_colum, fila_final, columna_final)
                 nuevo_nodo = Nodo(nueva_fila, nueva_colum, nodo_actual.costo + 1, heuristica, nodo_actual)
-                visitado[(nueva_fila, nueva_colum)] = True
                 cola.put((heuristica, nuevo_nodo))
                 graph.graficar_arbol(nuevo_nodo, "Busqueda Avara")
                
