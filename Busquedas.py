@@ -15,15 +15,28 @@ import matplotlib.pyplot as plt
 
 def ejecutar_busquedas(tablero, meta, inicio, max_iteraciones):
         #lista_algoritmos = [busqueda_Amplitud, busqueda_Profundidad, busqueda_profundidad_limitada, busqueda_Limitaprofundidad, busqueda_Costouniforme, busqueda_avara]
-        lista_algoritmos = [ busqueda_Amplitud ,busqueda_Limitaprofundidad]
+        
+        print("Busqueda en tablero:")
+        for i in range(len(tablero)):
+            print(tablero[i])
+        
+        lista_algoritmos = [
+            (busqueda_Amplitud, "Amplitud"),
+            (busqueda_Profundidad, "Profundidad"),
+            (busqueda_profundidad_iterativa, "Profundidad Iterativa"),
+            (busqueda_Profundidad, "Profundidad Limitada"),
+            (busqueda_Costouniforme, "Costo Uniforme"),
+            (busqueda_avara, "Avara")
+        ]
         nodo_inicial = Nodo(inicio[0], inicio[1], 0, 0, None)
         graph = GraficarArbol(nodo_inicial)
         lista_inicial = [nodo_inicial]
         resultados = []
 
         for i in range(len(lista_algoritmos)):
-            resultado = lista_algoritmos[i](tablero, lista_inicial, meta, max_iteraciones, graph)
-            print("Algoritmo:", lista_algoritmos[i].__name__)
+            graph.establecer_nombre(lista_algoritmos[i][1])
+            resultado = lista_algoritmos[i][0](tablero, lista_inicial, meta, max_iteraciones, graph)
+            print("Algoritmo:", lista_algoritmos[i][1])
             print("Resultado:", resultado)
 
             
@@ -40,12 +53,12 @@ def ejecutar_busquedas(tablero, meta, inicio, max_iteraciones):
 
 if __name__ == "__main__":
     tablero = [
-            '.', '.','.', '.',
-            '.', '#','#', '.',
-            '.', '#','.', '.',
-            '.', '.','.', '#'
+            ['.', '.','.', '.'],
+            ['.', '#','#', '.'],
+            ['.', '#','.', '.'],
+            ['.', '.','.', '#']
     ]
     meta = (1, 3)
     inicio = (2, 0)
-    max_iteraciones = 6
+    max_iteraciones = 9
     ejecutar_busquedas(tablero, meta, inicio, max_iteraciones)

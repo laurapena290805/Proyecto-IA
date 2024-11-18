@@ -89,9 +89,9 @@ class PantallaPrincipal(tk.Tk):
         if ruta_archivo:
             with open(ruta_archivo, 'r') as archivo:
                 lineas = archivo.readlines()
-                matriz = [list(linea.strip()) for linea in lineas if linea.strip()]
-
+                matriz = [list(linea.strip()) for linea in lineas]
             # Mostrar ventana emergente para confirmar la matriz
+            matriz = list(filter(lambda x: len(x) > 1, matriz))
             self.mostrar_dialogo_matriz(matriz, ruta_archivo)
 
     def mostrar_dialogo_matriz(self, matriz, ruta_archivo):

@@ -45,7 +45,6 @@ def busqueda_avara(tablero, lista_nodos_iniciales, meta, maximo_iteraciones, gra
 
         if nodo_actual.fila == fila_final and nodo_actual.columna == columna_final:
             camino = reconstruir_camino(nodo_actual) 
-            graph.graficar_arbol(nodo_actual, "Meta encontrada", camino)
             return (True, camino)        
 
         
@@ -57,7 +56,7 @@ def busqueda_avara(tablero, lista_nodos_iniciales, meta, maximo_iteraciones, gra
                 heuristica = calcular_heuristica(nueva_fila, nueva_colum, fila_final, columna_final)
                 nuevo_nodo = Nodo(nueva_fila, nueva_colum, nodo_actual.costo + 1, heuristica, nodo_actual)
                 cola.put((heuristica, nuevo_nodo))
-                graph.graficar_arbol(nuevo_nodo, "Busqueda Avara")
+                graph.graficar_arbol(nuevo_nodo)
                
                  
     return None
