@@ -38,7 +38,6 @@ class PantallaPrincipal(tk.Tk):
         marco_entrada = tk.Frame(self)
         marco_entrada.pack(pady=10)
         
-        """
         # Entrada de Filas y Columnas
         tk.Label(marco_entrada, text="Número de filas (n):").grid(row=0, column=0, padx=10, pady=5)
         self.entrada_filas = tk.Entry(marco_entrada)
@@ -47,7 +46,11 @@ class PantallaPrincipal(tk.Tk):
         tk.Label(marco_entrada, text="Número de columnas (m):").grid(row=1, column=0, padx=10, pady=5)
         self.entrada_columnas = tk.Entry(marco_entrada)
         self.entrada_columnas.grid(row=1, column=1, padx=10, pady=5)
-        """
+
+        #Boton que inicializa la matriz con las dimenciones ingresadas por el usuario, estará a la derecha de las entradas de filas y columnas
+        boton_matriz = tk.Button(marco_entrada, text="Crear Matriz", command=self.crear_matriz)
+        boton_matriz.grid(row=0, column=2, rowspan=2, padx=10, pady=5)
+        
         
         # Entrada de Iteraciones y Profundidad
         tk.Label(marco_entrada, text="Número de iteraciones:").grid(row=2, column=0, padx=10, pady=5)
@@ -119,6 +122,12 @@ class PantallaPrincipal(tk.Tk):
         self.matriz = matriz
         self.nombre_archivo = ruta_archivo.split("/")[-1]
         self.etiqueta_nombre_archivo.config(text=f"Archivo cargado: {self.nombre_archivo}", fg="green")
+        #Mostrar las dimenciones en los campos de entrada de filas y columnas y bloquearlos
+        self.entrada_filas.insert(0, len(matriz))
+        self.entrada_filas.config(state="disabled")
+        self.entrada_columnas.insert(0, len(matriz[0]))
+        self.entrada_columnas.config(state="disabled")
+
         #Imprimir la matriz como string linea por linea
         self.etiqueta_matriz.config(text= "\n".join(["".join(fila) for fila in matriz]), font=("Courier", 12))
         # Cerrar el diálogo
@@ -128,6 +137,9 @@ class PantallaPrincipal(tk.Tk):
         # Validación básica de los campos de entrada (puede ampliarse)
         if not self.entrada_iteraciones.get().isdigit() or not self.entrada_profundidad.get().isdigit():
             messagebox.showerror("Error", "Por favor ingrese valores numéricos en iteraciones y profundidad.")
+            return
+        if not self.entrada_filas.get().isdigit() or not self.entrada_columnas.get().isdigit():
+            messagebox.showerror("Error", "Por favor ingrese valores numéricos en filas y columnas")
             return
         # Validar las coordenadas de inicio y meta
         try:
@@ -145,7 +157,48 @@ class PantallaPrincipal(tk.Tk):
             return
         
         ejecutar_busquedas(self.matriz, meta, inicio, max_iteraciones)
+
+    #Funcion que crea la matriz con '.' con las dimenciones ingresadas por el usuario
+    # ademas crea una ventana emergente donde estará una matriz de botones que representan cada celda de la matriz
+    #al dar click en un boton se modifica esa celda de la matriz con un'#' si está seleccionado o un '.' si está deseleccionado
+    def crear_matriz(self):
+
+        if not self.entrada_filas.get().isdigit() or not self.entrada_columnas.get().isdigit():
+            messagebox.showerror("Error", "Por favor ingrese el numero de filas y columnas.")
+            return
+
+        filas = int(self.entrada_filas.get())
+        columnas = int(self.entrada_columnas.get())
+        matriz = [["." for _ in range(columnas)] for _ in range(filas)]
+        dialogo = tk.Toplevel(self)
+        dialogo.title("Crear Matriz Manualmente")
+        botones = []
+        for i in range(filas):
+            fila_botones = []
+            for j in range(columnas):
+                boton = tk.Button(dialogo, text=matriz[i][j], width=2, height=1, command=lambda i=i, j=j: self.cambiar_estado_celda(matriz, i, j, fila_botones))
+                boton.grid(row=i, column=j)
+                fila_botones.append(boton)
+            botones.append(fila_botones)
         
+        boton_confirmar = tk.Button(dialogo, text="Confirmar", command=lambda: self.confirmar_matriz_manual(dialogo, matriz))
+        boton_confirmar.grid(row=filas, columnspan=columnas)
+        boton_cancelar = tk.Button(dialogo, text="Cancelar", command=dialogo.destroy)
+        boton_cancelar.grid(row=filas+1, columnspan=columnas)
+
+    def cambiar_estado_celda(self, matriz, i, j, botones):
+        if matriz[i][j] == ".":
+            matriz[i][j] = "#"
+        else:
+            matriz[i][j] = "."
+        botones[i][j].config(text=matriz[i][j])
+
+    def confirmar_matriz_manual(self, dialogo, matriz):
+        self.matriz = matriz
+        self.etiqueta_nombre_archivo.config(text="Matriz creada manualmente", fg="green")
+        self.etiqueta_matriz.config(text="\n".join(["".join(fila) for fila in matriz]), font=("Courier", 12))
+        dialogo.destroy()
+
 
 if __name__ == "__main__":
     app = PantallaPrincipal()

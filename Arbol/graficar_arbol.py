@@ -24,7 +24,7 @@ class GraficarArbol:
             nx.draw_networkx_edges(self.graph, self.pos, edgelist=edge_path, edge_color="red", width=2)
 
         #mostrar el gráfico sin cerrar la ventana actual
-        plt.pause(0.5)  
+        plt.pause(2.5)  
         plt.show(block=False)
 
     def hierarchy_pos(self, G, root=None, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5):

@@ -13,26 +13,33 @@ import time
 import matplotlib.pyplot as plt
 
 def ejecutar_busquedas(tablero, meta, inicio, max_iteraciones):
-        visitado = {}
-        lista_algoritmos = [busqueda_Amplitud, busqueda_Profundidad, busqueda_Limitaprofundidad, busqueda_Costouniforme, busqueda_avara]
-        nodo_inicial = Nodo(inicio[0], inicio[1], 0, 0, None)
-        graph = GraficarArbol(nodo_inicial)
-        lista_inicial = [nodo_inicial]
-        resultados = []
+    visitado = {}
+    lista_algoritmos = [busqueda_avara, busqueda_Profundidad, busqueda_Amplitud, busqueda_Costouniforme, busqueda_Limitaprofundidad]
+    nodo_inicial = Nodo(inicio[0], inicio[1], 0, 0, None)
+    graph = GraficarArbol(nodo_inicial)
+    lista_inicial = [nodo_inicial]
+    resultados = []
 
-        for i in range(len(lista_algoritmos)):
-            resultado = lista_algoritmos[i](tablero, lista_inicial, meta, max_iteraciones, visitado, graph)
-            print("Algoritmo:", lista_algoritmos[i].__name__)
-            print("Resultado:", resultado)
+    for i in range(len(lista_algoritmos)):
+        resultado = lista_algoritmos[i](tablero, lista_inicial, meta, max_iteraciones, visitado, graph)
+        print("\nAlgoritmo:", lista_algoritmos[i].__name__)
+        print("Resultado:", resultado)
 
             
 
-            if resultado is None:
-                resultados.append("No se puede llegar a la meta")
-                break
-            if resultado[0]:
-                resultados.append("Pasos para llegar a la meta: {}".format(resultado[1]))
-                break
+        if resultado is None:
+            resultados.append("No se puede llegar a la meta")
+            break
+        if resultado[0]:
+            resultados.append("Pasos para llegar a la meta: {}".format(resultado[1]))
+            break
 
-            lista_inicial = resultado[1]
-            max_iteraciones += max_iteraciones
+        lista_inicial = resultado[1]
+        max_iteraciones += max_iteraciones
+
+    #No terminar hasta que se cierre la ventana de la grafica
+    plt.show()
+    print("\nResultados:")
+    print(resultados)
+    print("\n")
+    return "Algoritmos ejecutados con exito"
