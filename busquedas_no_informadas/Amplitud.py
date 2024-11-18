@@ -1,6 +1,4 @@
 from collections import deque
-import networkx as nx
-import matplotlib.pyplot as plt
 from clase_nodo.class_nodo import Nodo, calcular_heuristica
 
 

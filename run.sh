@@ -3,4 +3,5 @@
 #PYTHONPATH=. python3 busquedas_no_informadas/costoUniforme.py
 #PYTHONPATH=. python3 busquedas_no_informadas/Profundidad_iterativa.py
 #PYTHONPATH=. python3 busquedas_no_informadas/limitada_profundidad.py
-PYTHONPATH=. python3 main.py
+#PYTHONPATH=. python3 home.py
+PYTHONPATH=. python3 Busquedas.py

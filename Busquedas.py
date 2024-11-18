@@ -12,9 +12,11 @@ import json
 import time
 import matplotlib.pyplot as plt
 
+
 def ejecutar_busquedas(tablero, meta, inicio, max_iteraciones):
         visitado = {}
-        lista_algoritmos = [busqueda_Amplitud, busqueda_Profundidad, busqueda_Limitaprofundidad, busqueda_Costouniforme, busqueda_avara]
+        #lista_algoritmos = [busqueda_Amplitud, busqueda_Profundidad, busqueda_profundidad_limitada, busqueda_Limitaprofundidad, busqueda_Costouniforme, busqueda_avara]
+        lista_algoritmos = [busqueda_Costouniforme]
         nodo_inicial = Nodo(inicio[0], inicio[1], 0, 0, None)
         graph = GraficarArbol(nodo_inicial)
         lista_inicial = [nodo_inicial]
@@ -36,3 +38,15 @@ def ejecutar_busquedas(tablero, meta, inicio, max_iteraciones):
 
             lista_inicial = resultado[1]
             max_iteraciones += max_iteraciones
+
+if __name__ == "__main__":
+    tablero = [
+            '.', '.','.', '.',
+            '.', '#','#', '.',
+            '.', '#','.', '.',
+            '.', '.','.', '#'
+    ]
+    meta = (1, 3)
+    inicio = (2, 0)
+    max_iteraciones = 10
+    ejecutar_busquedas(tablero, meta, inicio, max_iteraciones)

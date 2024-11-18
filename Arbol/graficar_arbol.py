@@ -24,7 +24,19 @@ class GraficarArbol:
             nx.draw_networkx_edges(self.graph, self.pos, edgelist=edge_path, edge_color="red", width=2)
 
         #mostrar el gráfico sin cerrar la ventana actual
-        plt.pause(0.5)  
+        plt.pause(1)  
+        plt.show(block=False)
+
+    def eliminar_nodos(self, lista_nodos):
+        print("Eliminando nodos")
+        if lista_nodos == []:
+            return
+        for nodo in lista_nodos:
+            self.graph.remove_node((nodo.fila, nodo.columna, nodo.id))
+        self.pos = self.hierarchy_pos(self.graph, self.root)
+        plt.clf()
+        nx.draw(self.graph, self.pos, with_labels=True, node_size=500, node_color="orange", font_size=10)
+        plt.pause(0.5)
         plt.show(block=False)
 
     def hierarchy_pos(self, G, root=None, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5):

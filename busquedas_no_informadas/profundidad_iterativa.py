@@ -20,21 +20,22 @@ def inicializar_estructura(lista_nodos_iniciales, visitado):
 
 def busqueda_profundidad_iterativa(tablero, lista_nodos_iniciales, meta, maximo_profundidad, visitado, graph):
     fila_final, columna_final = meta
-
+    lista_temporal_nodos = []
     # Realizar DFS con un límite de profundidad que incrementa en cada iteración
     for limite in range(1, maximo_profundidad + 1):
         # Reiniciar el grafo al inicio de cada iteración de profundidad
-        graph.graph.clear()
-        graph.graph.add_node(graph.root)
-
-        # Reiniciar la estructura de la pila y el estado de visitado en cada iteración
-        pila = inicializar_estructura(lista_nodos_iniciales.copy(), visitado)
-        visitado = {(fila, col): False for fila in range(len(tablero)) for col in range(len(tablero[0]))}
+       ## graph.graph.clear() Borra el arbol 
+        print("Iteracion", limite)
         
-        # Marcar el nodo inicial como visitado
-        for nodo_inicial in lista_nodos_iniciales:
-            visitado[(nodo_inicial.fila, nodo_inicial.columna)] = True
+        # Reiniciar la estructura de la pila y el estado de visitado en cada iteración
+        pila = inicializar_estructura(lista_nodos_iniciales, visitado)
+        for nodo in lista_temporal_nodos:
+            visitado[(nodo.fila, nodo.columna)] = False
 
+       
+        graph.eliminar_nodos(lista_temporal_nodos)
+        lista_temporal_nodos.clear()
+        
         while pila:
             nodo_actual = pila.pop()
 
@@ -56,13 +57,14 @@ def busqueda_profundidad_iterativa(tablero, lista_nodos_iniciales, meta, maximo_
                         
                         hijos_temp.append(nuevo_nodo) 
                         visitado[(nueva_fila, nueva_colum)] = True
+                        lista_temporal_nodos.append(nuevo_nodo)
                         graph.graficar_arbol(nuevo_nodo)
 
                 # Expandir nodos en el mismo orden sin alternancia
                 hijos_temp.reverse()
                 pila.extend(hijos_temp)
 
-    return (False, [])  # Si no se encuentra la meta dentro del límite dado
+    return (False, pila)  # Si no se encuentra la meta dentro del límite dado
 
 if __name__ == "__main__":
     busqueda_profundidad_iterativa()
