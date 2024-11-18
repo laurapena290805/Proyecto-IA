@@ -12,18 +12,20 @@ def reconstruir_camino(nodo):
     camino.reverse()  # Invertir el camino para mostrar desde el inicio hasta la meta
     return camino
 
+def es_mi_abuelo(nodo, x, y):
+    if nodo.padre is None:
+        return False
+    padre = nodo.padre
+    return  padre.fila == x and padre.columna == y
 
-
-def inicializar_estrucuras_de_datos(lista_nodos_iniciales, visitado):
-    for nodo in lista_nodos_iniciales:
-        visitado[(nodo.fila, nodo.columna)] = True
+def inicializar_estrucuras_de_datos(lista_nodos_iniciales):
     lista_nodos_iniciales.reverse()  
     return  lista_nodos_iniciales
 
-def busqueda_Profundidad(tablero, lista_nodos_iniciales, meta, maximo_iteraciones, visitado, graph):
+def busqueda_Profundidad(tablero, lista_nodos_iniciales, meta, maximo_iteraciones, graph):
     fila_final, columna_final = meta
     # Pila para realizar DFS
-    pila = inicializar_estrucuras_de_datos(lista_nodos_iniciales, visitado)
+    pila = inicializar_estrucuras_de_datos(lista_nodos_iniciales)
 
     while pila:
         nodo_actual = pila.pop()  # Sacar el nodo del tope de la pila
@@ -44,21 +46,23 @@ def busqueda_Profundidad(tablero, lista_nodos_iniciales, meta, maximo_iteracione
 
         hijos_temp = []
         
-        for movimiento in [(0, -1), (-1, 0), (0, 1), (1, 0)]:
+        for movimiento in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
             nueva_fila = nodo_actual.fila + movimiento[0]
             nueva_colum = nodo_actual.columna + movimiento[1]
 
-            if es_valido(nueva_fila, nueva_colum, tablero) and tablero[nueva_fila][nueva_colum] != '#' and not visitado.get((nueva_fila, nueva_colum), False):
+            if es_valido(nueva_fila, nueva_colum, tablero) and tablero[nueva_fila][nueva_colum] != '#' and not es_mi_abuelo(nodo_actual, nueva_fila, nueva_colum):
                 heuristica = calcular_heuristica(nueva_fila, nueva_colum, fila_final, columna_final)
                 nuevo_nodo = Nodo(nueva_fila, nueva_colum, nodo_actual.costo + 1, heuristica, nodo_actual)
                 
                 hijos_temp.append(nuevo_nodo) 
-                visitado[(nueva_fila, nueva_colum)] = True
                 graph.graficar_arbol(nuevo_nodo)
                
              
             hijos_temp.reverse()
-            pila.extend(hijos_temp)
+
+            for hijos in hijos_temp:
+                pila.append(hijos)
+            
 
     return None
 
