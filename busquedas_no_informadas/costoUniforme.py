@@ -40,6 +40,7 @@ def busqueda_Costouniforme(tablero, lista_nodos_iniciales, meta, maximo_iteracio
 
         if nodo_actual.fila == fila_final and nodo_actual.columna == columna_final:
             camino = reconstruir_camino(nodo_actual) 
+            graph.graficar_arbol(nodo_actual, "Meta encontrada", camino)
             return (True, camino)        
 
         
@@ -52,11 +53,12 @@ def busqueda_Costouniforme(tablero, lista_nodos_iniciales, meta, maximo_iteracio
                 nuevo_nodo = Nodo(nueva_fila, nueva_colum, nodo_actual.costo + 1, heuristica, nodo_actual)
              
                 visitado[(nueva_fila, nueva_colum)] = True
+
                 cola.put((nuevo_nodo.costo, nuevo_nodo))
-                graph.graficar_arbol(nuevo_nodo)
+                graph.graficar_arbol(nuevo_nodo, "Busqueda Costo Uniforme")
                
                  
     return None
 
 if __name__ == "__main__":
-    busqueda_Costouniforme()  # Ejecutar busqueda_Costouniforme y obtener el camino
+    busqueda_Costouniforme() 

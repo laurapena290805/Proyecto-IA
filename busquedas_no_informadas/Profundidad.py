@@ -39,7 +39,7 @@ def busqueda_Profundidad(tablero, lista_nodos_iniciales, meta, maximo_iteracione
         # Si es la coordenada final, hemos terminado
         if nodo_actual.fila == fila_final and nodo_actual.columna == columna_final:
             camino = reconstruir_camino(nodo_actual)  # Reconstruir el camino
-          #  visualizar_arbol_jerarquico(arbol_conexiones, nodo_actual.fila, nodo_actual.columna, 0, camino)  # Mostrar el árbol
+            graph.graficar_arbol(nodo_actual, "Meta encontrada", camino)
             return (True, camino)
 
         hijos_temp = []
@@ -53,7 +53,7 @@ def busqueda_Profundidad(tablero, lista_nodos_iniciales, meta, maximo_iteracione
                 
                 hijos_temp.append(nuevo_nodo) 
                 visitado[(nueva_fila, nueva_colum)] = True
-                graph.graficar_arbol(nuevo_nodo)
+                graph.graficar_arbol(nuevo_nodo, "Busqueda en Profundidad")
                
              
             hijos_temp.reverse()

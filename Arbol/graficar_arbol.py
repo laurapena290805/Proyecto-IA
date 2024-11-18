@@ -1,49 +1,45 @@
 import networkx as nx
-import os
 import matplotlib.pyplot as plt
 
-
-
 class GraficarArbol:
-
     def __init__(self, root):
         self.graph = nx.DiGraph()
         self.pos = None
         self.root = (root.fila, root.columna, root.id)
+        self.iteraciones = 0
 
-    def graficar_arbol(self, nodo):
+    def graficar_arbol(self, nodo, nameAlgoritmo, camino=None):
+        
         self.graph.add_edge((nodo.padre.fila, nodo.padre.columna, nodo.padre.id), (nodo.fila, nodo.columna, nodo.id))
         self.pos = self.hierarchy_pos(self.graph, self.root)
+        plt.clf()  # Limpiar el gráfico antes de volver a dibujar
+        #cambiar el titulo para que no salga Figure 1
+        self.iteraciones += 1
+        plt.title(nameAlgoritmo + " - Iteración: " + str(self.iteraciones))
         nx.draw(self.graph, self.pos, with_labels=True, node_size=500, node_color="orange", font_size=10)
-        plt.savefig("arbol.png")
-        # Implementar sleep para que se pueda ver el arbol
-        # actualizar la imagen en cada iteracion
 
-        plt.show()
-        
-        # Implementar sleep para que se pueda ver el arbol
-        # actualizar la imagen en cada iteracion
+        # Resaltar el camino encontrado
+        if camino:  # Asegurarse de que haya un camino
+            edge_path = [(camino[i], camino[i+1]) for i in range(len(camino) - 1)]
+            nx.draw_networkx_edges(self.graph, self.pos, edgelist=edge_path, edge_color="red", width=2)
 
-        plt.show()
+        #mostrar el gráfico sin cerrar la ventana actual
+        plt.pause(0.5)  
+        plt.show(block=False)
 
     def hierarchy_pos(self, G, root=None, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5):
-        pos = self._hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter, parsed=set())
-        return pos
-    
+        return self._hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter, parsed=set())
+
     def _hierarchy_pos(self, G, root, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5, pos=None, parent=None, parsed=None):
         if parsed is None:
             parsed = set()
-        parsed.add(root)  # Marcar el nodo como procesado
-        
+        parsed.add(root)
         if pos is None:
             pos = {root: (xcenter, vert_loc)}
         else:
             pos[root] = (xcenter, vert_loc)
         
         children = [child for child in G.neighbors(root) if child not in parsed]
-        if not isinstance(G, nx.DiGraph) and parent is not None:
-            children = [child for child in children if child != parent]
-        
         if len(children) != 0:
             dx = width / len(children)
             nextx = xcenter - width / 2 - dx / 2

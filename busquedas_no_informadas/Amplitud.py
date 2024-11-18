@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from clase_nodo.class_nodo import Nodo, calcular_heuristica
 
 
+
 def es_valido(fila, columna, tablero):
     n, m = len(tablero), len(tablero[0])
     return 0 <= fila < n and 0 <= columna < m and tablero[fila][columna] != '#'
@@ -38,6 +39,7 @@ def busqueda_Amplitud(tablero, lista_nodos_iniciales, meta, maximo_iteraciones, 
 
         if nodo_actual.fila == fila_final and nodo_actual.columna == columna_final:
             camino = reconstruir_camino(nodo_actual)
+            graph.graficar_arbol(nodo_actual, "Meta encontrada", camino)
             return (True, camino)
         
         for df, dc in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
@@ -48,7 +50,8 @@ def busqueda_Amplitud(tablero, lista_nodos_iniciales, meta, maximo_iteraciones, 
                 nuevo_nodo = Nodo(nueva_fila, nueva_columna, nodo_actual.costo + 1, heuristica, nodo_actual)
                 cola.append(nuevo_nodo)
                 visitado[(nueva_fila, nueva_columna)] = True
-                graph.graficar_arbol(nuevo_nodo)
+                
+                graph.graficar_arbol(nuevo_nodo, "Busqueda en Amplitud")
         # guardo sus hijos el nodo actual
 
 
