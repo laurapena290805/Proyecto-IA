@@ -11,7 +11,7 @@ from clase_nodo.class_nodo import Nodo
 
 
 visitado = {}
-lista_algoritmos = [busqueda_Amplitud, busqueda_Profundidad]
+lista_algoritmos = [busqueda_Costouniforme]
 
 
 tablero = [
@@ -29,8 +29,8 @@ lista_inicial = [nodo_inicial]
 maximo_iteraciones = 2
 
 for i in range(len(lista_algoritmos)):
-    resultado = lista_algoritmos[i](tablero, lista_inicial, meta, maximo_iteraciones, visitado, graph)
     print("Algoritmo:", lista_algoritmos[i].__name__)
+    resultado = lista_algoritmos[i](tablero, lista_inicial, meta, maximo_iteraciones, visitado, graph)
     print("Resultado:", resultado)
 
     if resultado is None:
