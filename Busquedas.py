@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 def ejecutar_busquedas(tablero, meta, inicio, max_iteraciones):
         visitado = {}
         #lista_algoritmos = [busqueda_Amplitud, busqueda_Profundidad, busqueda_profundidad_limitada, busqueda_Limitaprofundidad, busqueda_Costouniforme, busqueda_avara]
-        lista_algoritmos = [busqueda_Costouniforme]
+        lista_algoritmos = [ busqueda_Amplitud ,busqueda_Limitaprofundidad]
         nodo_inicial = Nodo(inicio[0], inicio[1], 0, 0, None)
         graph = GraficarArbol(nodo_inicial)
         lista_inicial = [nodo_inicial]
@@ -48,5 +48,5 @@ if __name__ == "__main__":
     ]
     meta = (1, 3)
     inicio = (2, 0)
-    max_iteraciones = 10
+    max_iteraciones = 6
     ejecutar_busquedas(tablero, meta, inicio, max_iteraciones)
