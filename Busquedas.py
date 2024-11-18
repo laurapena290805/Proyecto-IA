@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 
 
 def ejecutar_busquedas(tablero, meta, inicio, max_iteraciones):
-        visitado = {}
         #lista_algoritmos = [busqueda_Amplitud, busqueda_Profundidad, busqueda_profundidad_limitada, busqueda_Limitaprofundidad, busqueda_Costouniforme, busqueda_avara]
         lista_algoritmos = [ busqueda_Amplitud ,busqueda_Limitaprofundidad]
         nodo_inicial = Nodo(inicio[0], inicio[1], 0, 0, None)
@@ -23,7 +22,7 @@ def ejecutar_busquedas(tablero, meta, inicio, max_iteraciones):
         resultados = []
 
         for i in range(len(lista_algoritmos)):
-            resultado = lista_algoritmos[i](tablero, lista_inicial, meta, max_iteraciones, visitado, graph)
+            resultado = lista_algoritmos[i](tablero, lista_inicial, meta, max_iteraciones, graph)
             print("Algoritmo:", lista_algoritmos[i].__name__)
             print("Resultado:", resultado)
 
