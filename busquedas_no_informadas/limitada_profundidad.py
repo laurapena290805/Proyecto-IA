@@ -43,7 +43,7 @@ def busqueda_Limitaprofundidad(tablero, lista_nodos_iniciales, meta, maximo_iter
             return (True, camino)
 
         hijos_temp = []
-        for movimiento in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
+        for movimiento in [(0, -1), (-1, 0), (0, 1), (1, 0)]:
             nueva_fila = nodo_actual.fila + movimiento[0]
             nueva_colum = nodo_actual.columna + movimiento[1]
 

@@ -11,7 +11,7 @@ from clase_nodo.class_nodo import Nodo
 
 
 visitado = {}
-lista_algoritmos = [busqueda_Costouniforme]
+lista_algoritmos = [busqueda_Limitaprofundidad]
 
 
 tablero = [
@@ -21,12 +21,12 @@ tablero = [
     ['.', '.','.', '#'],
 ]
 
-meta = (1, 3)
+meta = (3, 1)
 inicio = (2, 0)
 nodo_inicial = Nodo(2, 0, 0, 0, None)
 graph = GraficarArbol(nodo_inicial)
 lista_inicial = [nodo_inicial]
-maximo_iteraciones = 2
+maximo_iteraciones = 10
 
 for i in range(len(lista_algoritmos)):
     print("Algoritmo:", lista_algoritmos[i].__name__)
