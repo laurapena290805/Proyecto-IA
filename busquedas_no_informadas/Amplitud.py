@@ -41,6 +41,7 @@ def busqueda_Amplitud(tablero, lista_nodos_iniciales, meta, maximo_iteraciones, 
 
         if nodo_actual.fila == fila_final and nodo_actual.columna == columna_final:
             camino = reconstruir_camino(nodo_actual)
+            graph.graficar_arbol(nodo_actual, camino)
             return (True, camino)
         
         for df, dc in [(-1, 0), (0, 1), (1, 0), (0, -1)]:

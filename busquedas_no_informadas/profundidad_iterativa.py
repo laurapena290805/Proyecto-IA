@@ -37,12 +37,19 @@ def busqueda_profundidad_iterativa(tablero, lista_nodos_iniciales, meta, maximo_
         graph.eliminar_nodos(remover_nodos)
         remover_nodos.clear()
 
+        nodosSinExpandir = []
+
         while pila:
             nodo_actual = pila.pop()
 
             # Verificar si hemos alcanzado el nodo meta
             if nodo_actual.fila == fila_final and nodo_actual.columna == columna_final:
-                return (True, reconstruir_camino(nodo_actual))
+                camino = reconstruir_camino(nodo_actual)  # Reconstruir el camino
+                graph.graficar_arbol(nodo_actual, camino)
+                return (True, camino)
+
+            if (nodo_actual.profundidad == maximo_profundidad):#Si el nodo actual llega a la profundidad máxima se agrega a la lista de nodos sin expandir
+                nodosSinExpandir.append(nodo_actual)
 
             # Evitar expandir más allá del límite de profundidad
             if nodo_actual.profundidad < limite:
@@ -63,8 +70,9 @@ def busqueda_profundidad_iterativa(tablero, lista_nodos_iniciales, meta, maximo_
                 # Expandir nodos en el mismo orden sin alternancia
                 hijos_temp.reverse()
                 pila.extend(hijos_temp)
+            
 
-    return (False, pila)  # Si no se encuentra la meta dentro del límite dado
+    return (False, nodosSinExpandir)  # Si no se encuentra la meta dentro del límite dado
 
 if __name__ == "__main__":
     busqueda_profundidad_iterativa()

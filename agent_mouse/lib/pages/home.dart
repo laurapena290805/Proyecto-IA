@@ -9,14 +9,12 @@ import 'package:file_picker/file_picker.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  //Ventana principal de la aplicación, de forma vertical
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Icon(Icons.mouse_outlined),
         centerTitle: true,
-        //crear la ventana en forma de rectángulo vertical
         shape: const RoundedRectangleBorder(
           side: BorderSide(
             color: Color.fromARGB(41, 0, 0, 0),
@@ -57,7 +55,7 @@ class HeaderWidget extends StatelessWidget {
           ),
           SizedBox(height: 20),
           Text(
-            '¡Bienvenido a Agent Mouse! Ayuda al ratón a encontrar el queso en el laberinto. Selecciona el algoritmo que deseas utilizar y presiona el botón de inicio para comenzar la búsqueda.',
+            '¡Bienvenido a Agent Mouse! Ayuda al ratón a encontrar el queso en el laberinto. Ingresa los datos y configura el laberinto para comenzar la búsqueda.',
             style: AppStyles.infomationTextStyle,
             textAlign: TextAlign.center,
           ),
@@ -71,7 +69,6 @@ class CentralContainer extends StatefulWidget {
   const CentralContainer({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _CentralContainerState createState() => _CentralContainerState();
 }
 
@@ -81,10 +78,13 @@ class _CentralContainerState extends State<CentralContainer> {
   late ButtonState buttonState;
   bool isLoading = false;
   bool isConfigured = false;
+  bool isReadFile = false;
   int rows = 0;
   int columns = 0;
   final inicio = [0, 0];
   final meta = [0, 0];
+  bool isInicioSet = false; // Nueva variable
+  bool isMetaSet = false; // Nueva variable
   int iterations = 0;
   List<List<String>>? mapa;
   String? fileName;
@@ -93,8 +93,6 @@ class _CentralContainerState extends State<CentralContainer> {
   final TextEditingController rowsController = TextEditingController();
   final TextEditingController columnsController = TextEditingController();
   final TextEditingController iterationsController = TextEditingController();
-  final TextEditingController salidaController = TextEditingController();
-  final TextEditingController metaController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -103,118 +101,69 @@ class _CentralContainerState extends State<CentralContainer> {
       color: const Color.fromARGB(255, 255, 255, 255),
       child: Column(
         children: [
-          const SizedBox(height: 20),
-
-          //CONTENIDO DE CONFIGURACION
-          if (!isConfigured)
-            Column(
-              children: [
-                Text(
-                  mapa != null
-                      ? 'Ingrese las coordenadas para el mapa seleccionado'
-                      : 'Configura a tu ratón ingresando los siguientes datos',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                if (mapa == null) ...[
-                  TextField(
-                    controller: rowsController,
-                    decoration: const InputDecoration(
-                      labelText: 'Número de filas (n)',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: columnsController,
-                    decoration: const InputDecoration(
-                      labelText: 'Número de columnas (m)',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ] else ...[
-                  TextField(
-                    controller: salidaController,
-                    decoration: const InputDecoration(
-                      labelText: 'Coordenadas de salida (x,y)',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: metaController,
-                    decoration: const InputDecoration(
-                      labelText: 'Coordenadas de meta (x,y)',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 10),
-                TextField(
-                  controller: iterationsController,
-                  decoration: const InputDecoration(
-                    labelText: 'Número de iteraciones',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 20),
-                
-                const Text(
-                  'También puede cargar un archivo',
-                  style: TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton.icon(
-                  onPressed: loadFile,
-                  icon: fileName != null
-                      ? const Icon(Icons.check, color: Colors.green)
-                      : const Icon(Icons.upload_file),
-                  label: Text(fileName ?? 'Cargar archivo .txt'),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: configureGrid,
-                  child: const Text('Continuar'),
-                ),
-              ],
+////////////////////////////////////// CONTENIDO DE EJECUCION ////////////////////////////////////
+          Text(
+            isConfigured
+                ? '¡Modifica tu laberinto e inicia!'
+                : 'Configura a tu ratón ingresando los siguientes datos',
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
             ),
-
-          const SizedBox(height: 20),
-
-          //CONTENIDO DE EJECUCION
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
           if (isConfigured)
             Column(
               children: [
                 Row(
                   children: [
-                    //CONTENIDO DE BOTONES
+////////////////////////////////////// CONTENIDO DE LABERINTO ////////////////////////////////////
                     Expanded(
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        height: MediaQuery.of(context).size.height * 0.6,
-                        decoration: const BoxDecoration(
-                          color: Color.fromARGB(75, 179, 179, 179),
-                        ),
-                        child: ButtonGrid(
-                          rows: rows,
-                          columns: columns,
-                          selectedMarker: selectedMarker,
+                      child: Center(
+                        child: Container(
+                          // Tamaño fijo para el contenedor cuadrado
+                          width:
+                              300, // Puedes ajustar este valor según tus necesidades
+                          height:
+                              300, // Asegúrate de que la altura sea igual al ancho para que sea un cuadrado
+                          decoration: const BoxDecoration(
+                            color: Color.fromARGB(255, 255, 255, 255),
+                          ),
+                          child: ButtonGrid(
+                            rows: rows,
+                            columns: columns,
+                            selectedMarker: selectedMarker,
+                            matrizCargada: mapa, // Pasar la matriz cargada
+                            onUpdateInicio: (row, col) {
+                              setState(() {
+                                inicio[0] = row;
+                                inicio[1] = col;
+                                isInicioSet =
+                                    true; // Actualizar la variable booleana
+                              });
+                            },
+                            onUpdateMeta: (row, col) {
+                              setState(() {
+                                meta[0] = row;
+                                meta[1] = col;
+                                isMetaSet =
+                                    true; // Actualizar la variable booleana
+                              });
+                            },
+                            onUpdateMatriz: (matriz) {
+                              setState(() {
+                                mapa = matriz;
+                              });
+                            },
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 20),
-
-                //CONTENIDO DE BOTONES DE ACCION Y ALGORITMO
+////////////////////////////////////// CONTENIDO DE BOTONES ////////////////////////////////////
                 Container(
                   padding: const EdgeInsets.all(40),
                   width: MediaQuery.of(context).size.width,
@@ -273,29 +222,102 @@ class _CentralContainerState extends State<CentralContainer> {
                         ],
                       ),
                       const SizedBox(height: 20),
+                      // Al dar click en el botón, se ejecuta el algoritmo y se bloquea el botón hasta que el algoritmo termine
                       ElevatedButton(
-                        onPressed: _runAlgorithm,
-                        child: const Text('Iniciar',
-                            style: AppStyles.buttonTextStyle),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Algoritmo actual: $algoritmoActual',
-                        style: AppStyles.infomationTextStyle,
+                        onPressed: isLoading ? null : _runAlgorithm,
+                        child: isLoading
+                            ? const CircularProgressIndicator()
+                            : const Text('Iniciar búsqueda'),
                       ),
                     ],
                   ),
                 ),
-
-                const SizedBox(height: 20),
               ],
             ),
+
+////////////////////////////////////// CONTENIDO DE CONFIGURACION ////////////////////////////////////
+
+          const SizedBox(height: 20),
+          Center(
+            child: Container(
+              width: 300, // Ajusta este valor según tus necesidades
+              child: Column(
+                children: [
+                  TextField(
+                    controller: rowsController,
+                    decoration: const InputDecoration(
+                      labelText: 'Número de filas (n)',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    enabled: mapa ==
+                        null, // Bloquear entrada si hay una matriz cargada
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: columnsController,
+                    decoration: const InputDecoration(
+                      labelText: 'Número de columnas (m)',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    enabled: mapa ==
+                        null, // Bloquear entrada si hay una matriz cargada
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: iterationsController,
+                    decoration: const InputDecoration(
+                      labelText: 'Número de Niveles de Profundidad',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          if (!isConfigured)
+            const Text(
+              'También puede cargar un archivo o continuar manualmente',
+              style: TextStyle(fontSize: 16),
+            ),
+          if (!isConfigured) const SizedBox(height: 20),
+          ElevatedButton.icon(
+            onPressed: loadFile,
+            icon: fileName != null
+                ? const Icon(Icons.check, color: Colors.green)
+                : const Icon(Icons.upload_file),
+            label: Text(fileName ?? 'Cargar archivo .txt'),
+          ),
+          if (isReadFile) const SizedBox(height: 20),
+          if (isReadFile)
+            ElevatedButton(
+              onPressed: resetConfiguration,
+              child: const Text('Quitar archivo cargado'),
+            ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: configureGrid,
+            child: const Text('Crear laberinto'),
+          ),
+          const SizedBox(height: 20),
         ],
       ),
     );
   }
 
   Future<void> _runAlgorithm() async {
+    if (!validateInputs(true)) return;
+
+    //Prueba: Imprimir los datos ingresados
+    //imprimir el mapa linea por linea
+    print('Mapa:' + mapa.toString());
+    print('Inicio: $inicio');
+    print('Meta: $meta');
+    print('Niveles de profundidad: $iterations');
+
     setState(() {
       isLoading = true;
     });
@@ -338,22 +360,12 @@ class _CentralContainerState extends State<CentralContainer> {
   }
 
   void configureGrid() {
-    if (validateInputs()) {
+    if (validateInputs(false)) {
       setState(() {
         if (rowsController.text.isNotEmpty &&
             columnsController.text.isNotEmpty) {
           rows = int.parse(rowsController.text);
           columns = int.parse(columnsController.text);
-        }
-
-        if (salidaController.text.isNotEmpty) {
-          inicio[0] = int.parse(salidaController.text.split(',')[0]);
-          inicio[1] = int.parse(salidaController.text.split(',')[1]);
-        }
-
-        if (metaController.text.isNotEmpty) {
-          meta[0] = int.parse(metaController.text.split(',')[0]);
-          meta[1] = int.parse(metaController.text.split(',')[1]);
         }
 
         iterations = int.parse(iterationsController.text);
@@ -362,20 +374,32 @@ class _CentralContainerState extends State<CentralContainer> {
     }
   }
 
-  bool validateInputs() {
+  void resetConfiguration() {
+    setState(() {
+      isConfigured = false;
+      isReadFile = false;
+      mapa = null;
+      fileName = null;
+      rowsController.clear();
+      columnsController.clear();
+      iterationsController.clear();
+      isInicioSet = false;
+      isMetaSet = false;
+    });
+  }
+
+  bool validateInputs(preparado) {
     if (mapa == null) {
       if (rowsController.text.isEmpty || columnsController.text.isEmpty) {
         showErrorDialog('Por favor, complete todos los campos.');
         return false;
       }
-    } else {
-      if (salidaController.text.isEmpty || metaController.text.isEmpty) {
-        showErrorDialog('Por favor, complete todos los campos.');
-        return false;
-      }
-      if (!RegExp(r'^\d+,\d+$').hasMatch(salidaController.text) ||
-          !RegExp(r'^\d+,\d+$').hasMatch(metaController.text)) {
-        showErrorDialog('Las coordenadas deben tener el formato x,y.');
+      try {
+        int.parse(rowsController.text);
+        int.parse(columnsController.text);
+      } catch (e) {
+        showErrorDialog(
+            'Por favor, ingrese solo números en los campos de filas y columnas.');
         return false;
       }
     }
@@ -383,6 +407,24 @@ class _CentralContainerState extends State<CentralContainer> {
       showErrorDialog('Por favor, complete todos los campos.');
       return false;
     }
+    try {
+      int.parse(iterationsController.text);
+    } catch (e) {
+      showErrorDialog(
+          'Por favor, ingrese solo números en el campo de niveles de profundidad.');
+      return false;
+    }
+    if (isConfigured && preparado) {
+      if (!isInicioSet) {
+        showErrorDialog('Por favor, seleccione una salida en el laberinto.');
+        return false;
+      }
+      if (!isMetaSet) {
+        showErrorDialog('Por favor, seleccione una meta en el laberinto.');
+        return false;
+      }
+    }
+
     return true;
   }
 
@@ -422,6 +464,9 @@ class _CentralContainerState extends State<CentralContainer> {
         rows = tempmapa.length;
         columns = tempmapa[0].length;
         fileName = result.files.single.name;
+        rowsController.text = rows.toString();
+        columnsController.text = columns.toString();
+        isReadFile = true;
       });
 
       showDialog(
@@ -458,7 +503,6 @@ class _CentralContainerState extends State<CentralContainer> {
       );
     }
   }
-
 }
 
 class FooterWidget extends StatelessWidget {

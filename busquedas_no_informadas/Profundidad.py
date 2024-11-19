@@ -41,6 +41,7 @@ def busqueda_Profundidad(tablero, lista_nodos_iniciales, meta, maximo_iteracione
         # Si es la coordenada final, hemos terminado
         if nodo_actual.fila == fila_final and nodo_actual.columna == columna_final:
             camino = reconstruir_camino(nodo_actual)  # Reconstruir el camino
+            graph.graficar_arbol(nodo_actual, camino)
             return (True, camino)
 
         hijos_temp = []

@@ -1,16 +1,23 @@
-// ignore: file_names
 import 'package:flutter/material.dart';
 
 class ButtonGrid extends StatefulWidget {
   final int rows;
   final int columns;
-  final int selectedMarker; // Marcador seleccionado
+  final int selectedMarker;
+  final List<List<String>>? matrizCargada;
+  final Function(int, int)? onUpdateInicio; // Nuevo callback
+  final Function(int, int)? onUpdateMeta; // Nuevo callback
+  final Function(List<List<String>>)? onUpdateMatriz; // Nuevo callback
 
   const ButtonGrid({
     super.key,
     required this.rows,
     required this.columns,
     required this.selectedMarker,
+    this.matrizCargada,
+    this.onUpdateInicio,
+    this.onUpdateMeta,
+    this.onUpdateMatriz,
   });
 
   @override
@@ -18,10 +25,9 @@ class ButtonGrid extends StatefulWidget {
 }
 
 class _ButtonGridState extends State<ButtonGrid> {
-  late ButtonState buttonState; // Nueva instancia de ButtonState
-  late List<List<int>> mapa; // Matriz de estados para cada botón
+  late ButtonState buttonState;
+  late List<List<int>> mapa;
 
-  // Coordenadas de los botones azul y verde
   String inicioCoor = '(x, y)';
   String metaXY = '(x, y)';
 
@@ -31,17 +37,31 @@ class _ButtonGridState extends State<ButtonGrid> {
     buttonState = ButtonState(rows: widget.rows, columns: widget.columns);
     mapa = List.generate(
         widget.rows, (_) => List.generate(widget.columns, (_) => 0));
+
+    // Inicializar el grid basado en matrizCargada
+    if (widget.matrizCargada != null) {
+      for (int i = 0; i < widget.rows; i++) {
+        for (int j = 0; j < widget.columns; j++) {
+          if (widget.matrizCargada![i][j] == '#') {
+            mapa[i][j] = 3; // Marcar como bloqueado
+            buttonState.updatemapaBotones(i, j, '#');
+          }
+        }
+      }
+    }
   }
 
   void markButton(int row, int col) {
     int buttonIndex = row * widget.columns + col;
 
     setState(() {
-      // Actualizamos la matriz de visualización
       if (widget.selectedMarker == 3) {
         mapa[row][col] = mapa[row][col] == 3 ? 0 : 3;
         buttonState.updatemapaBotones(
             row, col, mapa[row][col] == 3 ? '#' : '.');
+        if (widget.onUpdateMatriz != null) {
+          widget.onUpdateMatriz!(buttonState.getmapaBotones);
+        }
       } else if (widget.selectedMarker == 1) {
         if (buttonState.getinicioCoor != null) {
           int oldRow = buttonState.getinicioCoor! ~/ widget.columns;
@@ -53,6 +73,12 @@ class _ButtonGridState extends State<ButtonGrid> {
         buttonState.updatemapaBotones(row, col, '.');
         buttonState.updateinicioCoor(buttonIndex);
         inicioCoor = '(${row + 1}, ${col + 1})';
+        if (widget.onUpdateInicio != null) {
+          widget.onUpdateInicio!(row, col);
+        }
+        if (widget.onUpdateMatriz != null) {
+          widget.onUpdateMatriz!(buttonState.getmapaBotones);
+        }
       } else if (widget.selectedMarker == 2) {
         if (buttonState.getmetaCoor != null) {
           int oldRow = buttonState.getmetaCoor! ~/ widget.columns;
@@ -64,9 +90,14 @@ class _ButtonGridState extends State<ButtonGrid> {
         buttonState.updatemapaBotones(row, col, '.');
         buttonState.updatemetaCoor(buttonIndex);
         metaXY = '(${row + 1}, ${col + 1})';
+        if (widget.onUpdateMeta != null) {
+          widget.onUpdateMeta!(row, col);
+        }
+        if (widget.onUpdateMatriz != null) {
+          widget.onUpdateMatriz!(buttonState.getmapaBotones);
+        }
       }
 
-      // Imprimir la matriz en la consola (para depuración)
       print('Matriz de visualización:');
       print(buttonState.getmapaBotones);
       print('Coordenadas de salida: $inicioCoor');
@@ -130,7 +161,7 @@ class _ButtonGridState extends State<ButtonGrid> {
 }
 
 class ButtonState {
-  List<List<String>> mapaBotones; // Matriz de caracteres para la visualización
+  List<List<String>> mapaBotones;
   int? inicioCoor;
   int? metaCoor;
 
@@ -142,12 +173,10 @@ class ButtonState {
         inicioCoor = null,
         metaCoor = null;
 
-  // Getters
   List<List<String>> get getmapaBotones => mapaBotones;
   int? get getinicioCoor => inicioCoor;
   int? get getmetaCoor => metaCoor;
 
-  // Métodos para actualizar índices y matriz
   void updateinicioCoor(int index) {
     inicioCoor = index;
   }
