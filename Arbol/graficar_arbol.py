@@ -7,15 +7,19 @@ class GraficarArbol:
         self.pos = None
         self.root = (root.fila, root.columna, root.id)
         self.iteraciones = 0
+        self.algoritmo_actual = ''
+    
+    def establecer_nombre(self, nombre):
+        self.algoritmo_actual = nombre
 
-    def graficar_arbol(self, nodo, nameAlgoritmo, camino=None):
+    def graficar_arbol(self, nodo, camino=None):
         
         self.graph.add_edge((nodo.padre.fila, nodo.padre.columna, nodo.padre.id), (nodo.fila, nodo.columna, nodo.id))
         self.pos = self.hierarchy_pos(self.graph, self.root)
         plt.clf()  # Limpiar el gráfico antes de volver a dibujar
         #cambiar el titulo para que no salga Figure 1
         self.iteraciones += 1
-        plt.title(nameAlgoritmo + " - Iteración: " + str(self.iteraciones))
+        plt.title(self.algoritmo_actual + " - Iteración: " + str(self.iteraciones))
         nx.draw(self.graph, self.pos, with_labels=True, node_size=500, node_color="orange", font_size=10)
 
         # Resaltar el camino encontrado
@@ -24,8 +28,30 @@ class GraficarArbol:
             nx.draw_networkx_edges(self.graph, self.pos, edgelist=edge_path, edge_color="red", width=2)
 
         #mostrar el gráfico sin cerrar la ventana actual
-        plt.pause(2.5)  
+        plt.pause(1)  
         plt.show(block=False)
+
+    def eliminar_nodos(self, lista_nodos):
+        if lista_nodos == []:
+            return
+        for nodo in lista_nodos:
+            self.graph.remove_node((nodo.fila, nodo.columna, nodo.id))
+        self.pos = self.hierarchy_pos(self.graph, self.root)
+        plt.clf()
+        plt.title(self.algoritmo_actual + " - Iteración: " + str(self.iteraciones))
+        nx.draw(self.graph, self.pos, with_labels=True, node_size=500, node_color="orange", font_size=10)
+        plt.pause(0.5)
+        plt.show(block=False)
+
+    def eliminar_nodos(self, nodos):
+        if nodos == []:
+            return
+        for nodo in nodos:
+            self.graph.remove_node((nodo.fila, nodo.columna, nodo.id))
+        self.pos = self.hierarchy_pos(self.graph, self.root)
+        nx.draw(self.graph, self.pos, with_labels=True, node_size=500, node_color="orange", font_size=10)
+        plt.savefig("arbol.png")
+        plt.show()
 
     def hierarchy_pos(self, G, root=None, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5):
         return self._hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter, parsed=set())

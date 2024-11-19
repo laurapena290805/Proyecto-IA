@@ -12,28 +12,30 @@ def reconstruir_camino(nodo):
     camino.reverse()
     return camino
 
-def inicializar_estructura(lista_nodos_iniciales, visitado):
-    for nodo in lista_nodos_iniciales:
-        visitado[(nodo.fila, nodo.columna)] = True
+def inicializar_estructura(lista_nodos_iniciales):
     lista_nodos_iniciales.reverse()
     return lista_nodos_iniciales
 
-def busqueda_profundidad_iterativa(tablero, lista_nodos_iniciales, meta, maximo_profundidad, visitado, graph):
+def es_mi_abuelo(nodo, x, y):
+    if nodo.padre is None:
+        return False
+    padre = nodo.padre
+    return  padre.fila == x and padre.columna == y
+
+def busqueda_profundidad_iterativa(tablero, lista_nodos_iniciales, meta, maximo_profundidad, graph):
     fila_final, columna_final = meta
+    remover_nodos = []
+
 
     # Realizar DFS con un límite de profundidad que incrementa en cada iteración
     for limite in range(1, maximo_profundidad + 1):
         # Reiniciar el grafo al inicio de cada iteración de profundidad
-        graph.graph.clear()
-        graph.graph.add_node(graph.root)
 
         # Reiniciar la estructura de la pila y el estado de visitado en cada iteración
-        pila = inicializar_estructura(lista_nodos_iniciales.copy(), visitado)
-        visitado = {(fila, col): False for fila in range(len(tablero)) for col in range(len(tablero[0]))}
-        
-        # Marcar el nodo inicial como visitado
-        for nodo_inicial in lista_nodos_iniciales:
-            visitado[(nodo_inicial.fila, nodo_inicial.columna)] = True
+        pila = inicializar_estructura(lista_nodos_iniciales.copy())
+                
+        graph.eliminar_nodos(remover_nodos)
+        remover_nodos.clear()
 
         while pila:
             nodo_actual = pila.pop()
@@ -50,19 +52,19 @@ def busqueda_profundidad_iterativa(tablero, lista_nodos_iniciales, meta, maximo_
                     nueva_colum = nodo_actual.columna + movimiento[1]
 
                     # Verificar si el nodo es válido, no bloqueado, y no visitado
-                    if es_valido(nueva_fila, nueva_colum, tablero) and tablero[nueva_fila][nueva_colum] != '#' and not visitado.get((nueva_fila, nueva_colum), False):
+                    if es_valido(nueva_fila, nueva_colum, tablero) and tablero[nueva_fila][nueva_colum] != '#' and not es_mi_abuelo(nodo_actual, nueva_fila, nueva_colum):
                         heuristica = calcular_heuristica(nueva_fila, nueva_colum, fila_final, columna_final)
                         nuevo_nodo = Nodo(nueva_fila, nueva_colum, nodo_actual.costo + 1, heuristica, nodo_actual)
                         
                         hijos_temp.append(nuevo_nodo) 
-                        visitado[(nueva_fila, nueva_colum)] = True
                         graph.graficar_arbol(nuevo_nodo)
+                        remover_nodos.append(nuevo_nodo)
 
                 # Expandir nodos en el mismo orden sin alternancia
                 hijos_temp.reverse()
                 pila.extend(hijos_temp)
 
-    return (False, [])  # Si no se encuentra la meta dentro del límite dado
+    return (False, pila)  # Si no se encuentra la meta dentro del límite dado
 
 if __name__ == "__main__":
     busqueda_profundidad_iterativa()
