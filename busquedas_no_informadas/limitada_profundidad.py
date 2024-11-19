@@ -41,12 +41,12 @@ def busqueda_Limitaprofundidad(tablero, lista_nodos_iniciales, meta, maximo_iter
      
         # Si es la coordenada final, hemos terminado
         if nodo_actual.fila == fila_final and nodo_actual.columna == columna_final:
-            camino = reconstruir_camino(nodo_actual)  # Reconstruir el camino
+            camino = reconstruir_camino(nodo_actual)  # Reconstruir el ca   mino
             graph.graficar_arbol(nodo_actual, camino)
             return (True, camino)
 
         hijos_temp = []
-        for movimiento in [(0, -1), (-1, 0), (0, 1), (1, 0)]: # Movimientos posibles abajo, izquierda, arriba, derecha
+        for movimiento in [(-1, 0), (0, 1), (1, 0), (0, -1)]: # Movimientos posibles abajo, izquierda, arriba, derecha
             nueva_fila = nodo_actual.fila + movimiento[0]
             nueva_colum = nodo_actual.columna + movimiento[1]
 

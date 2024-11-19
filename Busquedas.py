@@ -24,7 +24,7 @@ def ejecutar_busquedas(tablero, meta, inicio, max_iteraciones):
     lista_algoritmos = [
         (busqueda_Amplitud, "Amplitud"),
         (busqueda_Profundidad, "Profundidad"),
-        (busqueda_profundidad_iterativa, "Profundidad Iterativa"),
+        #(busqueda_profundidad_iterativa, "Profundidad Iterativa"),
         (busqueda_Profundidad, "Profundidad Limitada"),
         (busqueda_Costouniforme, "Costo Uniforme"),
         (busqueda_avara, "Avara")
@@ -66,5 +66,5 @@ if __name__ == "__main__":
     ]
     meta = (1, 3)
     inicio = (2, 0)
-    max_iteraciones = 1
+    max_iteraciones = 3
     ejecutar_busquedas(tablero, meta, inicio, max_iteraciones)

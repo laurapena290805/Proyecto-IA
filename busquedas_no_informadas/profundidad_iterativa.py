@@ -47,8 +47,8 @@ def busqueda_profundidad_iterativa(tablero, lista_nodos_iniciales, meta, maximo_
                 camino = reconstruir_camino(nodo_actual)  # Reconstruir el camino
                 graph.graficar_arbol(nodo_actual, camino)
                 return (True, camino)
-
-            if (nodo_actual.profundidad == maximo_profundidad):#Si el nodo actual llega a la profundidad máxima se agrega a la lista de nodos sin expandir
+            
+            if (nodo_actual.profundidad == maximo_profundidad):
                 nodosSinExpandir.append(nodo_actual)
 
             # Evitar expandir más allá del límite de profundidad

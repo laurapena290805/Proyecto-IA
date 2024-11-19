@@ -239,7 +239,7 @@ class _CentralContainerState extends State<CentralContainer> {
 
           const SizedBox(height: 20),
           Center(
-            child: Container(
+            child: SizedBox(
               width: 300, // Ajusta este valor según tus necesidades
               child: Column(
                 children: [
@@ -313,7 +313,7 @@ class _CentralContainerState extends State<CentralContainer> {
 
     //Prueba: Imprimir los datos ingresados
     //imprimir el mapa linea por linea
-    print('Mapa:' + mapa.toString());
+    print('Mapa:$mapa');
     print('Inicio: $inicio');
     print('Meta: $meta');
     print('Niveles de profundidad: $iterations');
@@ -324,7 +324,7 @@ class _CentralContainerState extends State<CentralContainer> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:5000/algorithms'),
+        Uri.parse('http://127.0.0.1:5001/algorithms'),
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
